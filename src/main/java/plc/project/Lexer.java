@@ -1,6 +1,7 @@
 package plc.project;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * The lexer works through three main functions:
@@ -20,6 +21,15 @@ public final class Lexer {
 
     private final CharStream chars;
 
+    public static final Pattern
+            IDENTIFIER = Pattern.compile("[^-|\\d][A-Za-z0-9_-]"),
+    //TODO
+    // OPERATOR needs to be fixed is accepting more than one operator for example "======"
+            OPERATOR = Pattern.compile("^([^\\d\\w\\s]{1})|([<=][>=][!=][==])$"),
+            STRING = Pattern.compile("\\\"([^\\\\]|\\\\[bnrt\\'\\\"\\\\])*\\\""),
+            CHARACTER = Pattern.compile("\\'((.)|\\\\[bnrt\\'\\\"]){1,2}\\'"),
+            NUMBER = Pattern.compile("^(-|\\+)?[0-9]\\d*(\\.\\d+)?$");
+
     public Lexer(String input) {
         chars = new CharStream(input);
     }
@@ -29,7 +39,7 @@ public final class Lexer {
      * whitespace where appropriate.
      */
     public List<Token> lex() {
-        throw new UnsupportedOperationException(); //TODO
+        throw new UnsupportedOperationException();//TODO
     }
 
     /**
