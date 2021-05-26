@@ -28,7 +28,8 @@ public final class Lexer {
             OPERATOR = Pattern.compile("^([^\\d\\w\\s]{1})|([<=][>=][!=][==])$"),
             STRING = Pattern.compile("\\\"([^\\\\]|\\\\[bnrt\\'\\\"\\\\])*\\\""),
             CHARACTER = Pattern.compile("\\'((.)|\\\\[bnrt\\'\\\"]){1,2}\\'"),
-            NUMBER = Pattern.compile("^(-|\\+)?[0-9]\\d*(\\.\\d+)?$");
+            INTEGER = Pattern.compile("^(-|\\+)?([0-9])*$"),
+            DECIMAL = Pattern.compile("^(-|\\+)?[0-9]\\d*(\\.\\d+)$");
 
     public Lexer(String input) {
         chars = new CharStream(input);
@@ -40,6 +41,7 @@ public final class Lexer {
      */
     public List<Token> lex() {
         throw new UnsupportedOperationException();//TODO
+
     }
 
     /**
@@ -55,19 +57,27 @@ public final class Lexer {
     }
 
     public Token lexIdentifier() {
-        throw new UnsupportedOperationException(); //TODO
+        //TODO
+        return chars.emit(Token.Type.IDENTIFIER);
+
     }
 
     public Token lexNumber() {
-        throw new UnsupportedOperationException(); //TODO
+        //TODO
+        if (INTEGER.matcher(chars.input).matches())
+            return chars.emit(Token.Type.INTEGER);
+        else
+            return chars.emit(Token.Type.DECIMAL);
     }
 
     public Token lexCharacter() {
-        throw new UnsupportedOperationException(); //TODO
+        //TODO
+        return chars.emit(Token.Type.CHARACTER);
     }
 
     public Token lexString() {
-        throw new UnsupportedOperationException(); //TODO
+        //TODO
+        return chars.emit(Token.Type.STRING);
     }
 
     public void lexEscape() {
@@ -75,7 +85,8 @@ public final class Lexer {
     }
 
     public Token lexOperator() {
-        throw new UnsupportedOperationException(); //TODO
+        //TODO
+         return chars.emit(Token.Type.OPERATOR);
     }
 
     /**
