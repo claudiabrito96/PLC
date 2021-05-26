@@ -21,15 +21,8 @@ public final class Lexer {
 
     private final CharStream chars;
 
-    public static final Pattern
-            IDENTIFIER = Pattern.compile("[^-|\\d][A-Za-z0-9_-]"),
     //TODO
     // OPERATOR needs to be fixed is accepting more than one operator for example "======"
-            OPERATOR = Pattern.compile("^([^\\d\\w\\s]{1})|([<=][>=][!=][==])$"),
-            STRING = Pattern.compile("\\\"([^\\\\]|\\\\[bnrt\\'\\\"\\\\])*\\\""),
-            CHARACTER = Pattern.compile("\\'((.)|\\\\[bnrt\\'\\\"]){1,2}\\'"),
-            INTEGER = Pattern.compile("^(-|\\+)?([0-9])*$"),
-            DECIMAL = Pattern.compile("^(-|\\+)?[0-9]\\d*(\\.\\d+)$");
 
     public Lexer(String input) {
         chars = new CharStream(input);
@@ -40,8 +33,15 @@ public final class Lexer {
      * whitespace where appropriate.
      */
     public List<Token> lex() {
-        throw new UnsupportedOperationException();//TODO
-
+        //TODO
+        List<Token> tokens = null;
+        while (chars.length != 0){
+            if (match("\bnrt\'\""))
+                chars.advance();
+            else
+            tokens.add(lexToken());
+        }
+        return tokens;
     }
 
     /**
@@ -53,18 +53,32 @@ public final class Lexer {
      * by {@link #lex()}
      */
     public Token lexToken() {
-        throw new UnsupportedOperationException(); //TODO
+         //TODO
+        Token token = null;
+        if (match("[^-|\\d][A-Za-z0-9_-]"))
+            token = lexIdentifier();
+        if (match("^([^\\d\\w\\s]{1})|([<=][>=][!=][==])$"))
+            token = lexOperator();
+        if(match("\\\"([^\\\\]|\\\\[bnrt\\'\\\"\\\\])*\\\""))
+            token = lexString();
+        if(match("\\'((.)|\\\\[bnrt\\'\\\"]){1,2}\\'"))
+            token = lexCharacter();
+        if (match("^(-|\\+)?([0-9])*$"))
+            token = lexNumber();
+        if (match("^(-|\\+)?[0-9]\\d*(\\.\\d+)$"))
+            token = lexNumber();
+
+        return token;
     }
 
     public Token lexIdentifier() {
         //TODO
-        return chars.emit(Token.Type.IDENTIFIER);
-
+            return chars.emit(Token.Type.IDENTIFIER);
     }
 
     public Token lexNumber() {
         //TODO
-        if (INTEGER.matcher(chars.input).matches())
+        if (match("^(-|\\+)?([0-9])*$"))
             return chars.emit(Token.Type.INTEGER);
         else
             return chars.emit(Token.Type.DECIMAL);
@@ -109,7 +123,6 @@ public final class Lexer {
      */
     public boolean match(String... patterns) {
         boolean peek = peek(patterns);
-
         if(peek){
             for (int i = 0; i < patterns.length; i++)
                 chars.advance();
