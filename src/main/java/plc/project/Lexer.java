@@ -35,9 +35,11 @@ public final class Lexer {
     public List<Token> lex() {
         //TODO
         List<Token> tokens = null;
-        while (chars.length != 0){
-            if (match("\bnrt\'\""))
+        while (chars.has(0)){
+            if (match("[\b\n\r\t ]")){
                 chars.advance();
+                chars.skip();
+            }
             else
             tokens.add(lexToken());
         }
@@ -55,18 +57,17 @@ public final class Lexer {
     public Token lexToken() {
          //TODO
         Token token = null;
-        if (match("[^-|\\d][A-Za-z0-9_-]"))
+        if (peek("[A-Za-z_]"))
             token = lexIdentifier();
-        if (match("^([^\\d\\w\\s]{1})|([<=][>=][!=][==])$"))
+        if (peek("[^\\d\\w\\s]"))
             token = lexOperator();
-        if(match("\\\"([^\\\\]|\\\\[bnrt\\'\\\"\\\\])*\\\""))
+        if(peek("\""))
             token = lexString();
-        if(match("\\'((.)|\\\\[bnrt\\'\\\"]){1,2}\\'"))
+        if(peek("\'"))
             token = lexCharacter();
-        if (match("^(-|\\+)?([0-9])*$"))
+        if (peek("[0-9-+])"))
             token = lexNumber();
-        if (match("^(-|\\+)?[0-9]\\d*(\\.\\d+)$"))
-            token = lexNumber();
+
 
         return token;
     }
@@ -78,9 +79,6 @@ public final class Lexer {
 
     public Token lexNumber() {
         //TODO
-        if (match("^(-|\\+)?([0-9])*$"))
-            return chars.emit(Token.Type.INTEGER);
-        else
             return chars.emit(Token.Type.DECIMAL);
     }
 

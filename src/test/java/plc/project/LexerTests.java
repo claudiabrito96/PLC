@@ -71,6 +71,7 @@ public class LexerTests {
                 Arguments.of("Newline Escape", "\'\\n\'", true),
                 Arguments.of("Empty", "\'\'", false),
                 Arguments.of("Multiple", "\'abc\'", false)
+
         );
     }
 
@@ -103,6 +104,7 @@ public class LexerTests {
                 Arguments.of("Comparison", "<=", true),
                 Arguments.of("Space", " ", false),
                 Arguments.of("Tab", "\t", false)
+
         );
     }
 
