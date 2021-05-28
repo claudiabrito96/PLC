@@ -56,39 +56,42 @@ public final class Lexer {
      */
     public Token lexToken() {
          //TODO
-        Token token = null;
         if (peek("[A-Za-z_]"))
-            token = lexIdentifier();
-        if (peek("[^\\d\\w\\s]"))
-            token = lexOperator();
-        if(peek("\""))
-            token = lexString();
-        if(peek("\'"))
-            token = lexCharacter();
-        if (peek("[0-9-+])"))
-            token = lexNumber();
+            return lexIdentifier();
+        else if (peek("[+\\-]","[0-9]")||peek("[0-9]"))
+            return lexNumber();
+        else if(peek("\'"))
+            return lexCharacter();
+        else if(peek("\""))
+            return lexString();
+        else
+            return lexOperator();
 
 
-        return token;
     }
 
     public Token lexIdentifier() {
         //TODO
-            return chars.emit(Token.Type.IDENTIFIER);
+        while (match("[A-Za-z0-9_-]"));
+        return chars.emit(Token.Type.IDENTIFIER);
     }
 
     public Token lexNumber() {
         //TODO
-            return chars.emit(Token.Type.DECIMAL);
+        while (match("[0-9]"))
+               return chars.emit(Token.Type.INTEGER);
+        return chars.emit(Token.Type.DECIMAL);
     }
 
     public Token lexCharacter() {
         //TODO
+        while (match("[A-Za-z\']"));
         return chars.emit(Token.Type.CHARACTER);
     }
 
     public Token lexString() {
         //TODO
+        while (match("[A-Za-z\" \b\n\r\t\'\\]"));
         return chars.emit(Token.Type.STRING);
     }
 
@@ -98,6 +101,7 @@ public final class Lexer {
 
     public Token lexOperator() {
         //TODO
+        while (match("="));
          return chars.emit(Token.Type.OPERATOR);
     }
 
