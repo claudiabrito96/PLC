@@ -78,20 +78,20 @@ public final class Lexer {
 
     public Token lexNumber() {
         //TODO
-        while (match("[0-9]"))
-               return chars.emit(Token.Type.INTEGER);
-        return chars.emit(Token.Type.DECIMAL);
+
+        while (match("[0-9]"));
+        return chars.emit(Token.Type.INTEGER);
     }
 
     public Token lexCharacter() {
         //TODO
-        while (match("[A-Za-z\']"));
+        while (match("[A-za-z']"));
         return chars.emit(Token.Type.CHARACTER);
     }
 
     public Token lexString() {
         //TODO
-        while (match("[A-Za-z\" \b\n\r\t\'\\]"));
+        while (match("[A-Za-z\n\r\t\",!?. ]"));
         return chars.emit(Token.Type.STRING);
     }
 
