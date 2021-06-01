@@ -1,7 +1,7 @@
 package plc.project;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * The lexer works through three main functions:
@@ -21,9 +21,6 @@ public final class Lexer {
 
     private final CharStream chars;
 
-    //TODO
-    // OPERATOR needs to be fixed is accepting more than one operator for example "======"
-
     public Lexer(String input) {
         chars = new CharStream(input);
     }
@@ -33,14 +30,12 @@ public final class Lexer {
      * whitespace where appropriate.
      */
     public List<Token> lex() {
-        //TODO
-        List<Token> tokens = null;
-        while (chars.has(0)){
-            if (match("[\b\n\r\t ]")){
-                chars.advance();
+        List<Token> tokens = new ArrayList<Token>();
+        while(chars.has(0)){
+            while(match("[\b\n\r\t ]")){
+                //chars.advance();
                 chars.skip();
             }
-            else
             tokens.add(lexToken());
         }
         return tokens;
@@ -55,43 +50,70 @@ public final class Lexer {
      * by {@link #lex()}
      */
     public Token lexToken() {
-         //TODO
-        if (peek("[A-Za-z_]"))
+        if(peek("[A-Za-z_]"))
             return lexIdentifier();
-        else if (peek("[+\\-]","[0-9]")||peek("[0-9]"))
+        else if(peek("[\\+\\-]") || peek("[0-9]"))
             return lexNumber();
-        else if(peek("\'"))
+        else if(peek("'"))
             return lexCharacter();
         else if(peek("\""))
             return lexString();
         else
             return lexOperator();
-
-
     }
 
     public Token lexIdentifier() {
-        //TODO
-        while (match("[A-Za-z0-9_-]"));
+        while(match("[A-Za-z0-9_-]*"));
         return chars.emit(Token.Type.IDENTIFIER);
     }
 
     public Token lexNumber() {
-        //TODO
+        if(peek("\\+"))
+            chars.advance();
+        else if(peek("\\-"))
+            match("\\-");
 
-        while (match("[0-9]"));
+        while(match("[0-9]"));
+        if(peek("\\.")){
+            chars.advance();
+            if(!peek("[0-9]"))
+                throw new ParseException("Error", chars.index);
+
+            while(match("[0-9]"));
+            return chars.emit(Token.Type.DECIMAL);
+        }
+
+
         return chars.emit(Token.Type.INTEGER);
     }
 
     public Token lexCharacter() {
-        //TODO
-        while (match("[A-za-z']"));
+        chars.advance();
+        if(peek("(?!.*\\\\(?![bnrt\"\\\\])).*"))
+            chars.advance();
+        if(peek("[bnrt\"\\\\]"))
+            chars.advance();
+        if(peek("[bnrt\"\\\\]"))
+            chars.advance();
+        if(!peek("'"))
+            throw new ParseException("Error", chars.index);
+
+        chars.advance();
         return chars.emit(Token.Type.CHARACTER);
+//        else {
+//            while(!match("'"));
+//            return chars.emit(Token.Type.CHARACTER);
+//        }
     }
 
     public Token lexString() {
-        //TODO
-        while (match("[A-Za-z\n\r\t\",!?. ]"));
+        chars.advance();
+        while(!match("\"")){
+            if(!match("(?!.*\\\\(?![bnrt'\"\\\\])).*"))
+                throw new ParseException("Error", chars.index);
+        }
+
+
         return chars.emit(Token.Type.STRING);
     }
 
@@ -100,9 +122,16 @@ public final class Lexer {
     }
 
     public Token lexOperator() {
-        //TODO
-        while (match("="));
-         return chars.emit(Token.Type.OPERATOR);
+        if(peek("[<>!=]"))
+            while(match("[<>!=]"));
+        else if(peek( "[\b\n\r\t ]"))
+            throw new ParseException("Error", chars.index);
+        else if(!chars.has(0))
+            throw new ParseException("Error", chars.index);
+        else
+            chars.advance();
+
+        return chars.emit(Token.Type.OPERATOR);
     }
 
     /**
@@ -111,9 +140,10 @@ public final class Lexer {
      * return true if the next characters are {@code 'a', 'b', 'c'}.
      */
     public boolean peek(String... patterns) {
-        for (int i = 0; i < patterns.length; i++){
-            if(!chars.has(i) || !String.valueOf(chars.get(i)).matches(patterns[i]))
+        for(int i = 0; i < patterns.length; i ++){
+            if(!chars.has(i) || !String.valueOf(chars.get(i)).matches(patterns[i])) {
                 return false;
+            }
         }
         return true;
     }
