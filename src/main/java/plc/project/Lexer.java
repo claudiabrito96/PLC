@@ -107,19 +107,24 @@ public final class Lexer {
     }
 
     public Token lexString() {
-        chars.advance();
-        while(!match("\"")){
-            if(!match("(?!.*\\\\(?![bnrt'\"\\\\])).*"))
-                throw new ParseException("Error", chars.index);
+        match("\"");
+        while (peek("[^\"\n\r]")) {
+            if (peek("\\\\"))
+                lexEscape();
+            else
+                chars.advance();
         }
 
+        if(!match("\""))
+            throw new ParseException("Error", chars.index);
 
         return chars.emit(Token.Type.STRING);
     }
 
     public void lexEscape() {
-        chars.skip();
-        throw new ParseException("Escaped", chars.index);
+        match("\\\\");
+        if(!match("[bnrt\'\"\\\\]"))
+           throw new ParseException("Escaped", chars.index);
     }
 
     public Token lexOperator() {

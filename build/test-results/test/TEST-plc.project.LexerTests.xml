@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="plc.project.LexerTests" tests="30" skipped="0" failures="1" errors="0" timestamp="2021-06-01T00:17:25" hostname="Daniels-MacBook-Pro.local" time="0.248">
+<testsuite name="plc.project.LexerTests" tests="30" skipped="0" failures="1" errors="0" timestamp="2021-06-01T01:25:08" hostname="DESKTOP-L7FNPU7" time="0.174">
   <properties/>
-  <testcase name="testException()" classname="plc.project.LexerTests" time="0.049"/>
-  <testcase name="[1] Alphabetic, 'c', true" classname="plc.project.LexerTests" time="0.023"/>
+  <testcase name="testException()" classname="plc.project.LexerTests" time="0.028"/>
+  <testcase name="[1] Alphabetic, 'c', true" classname="plc.project.LexerTests" time="0.029"/>
   <testcase name="[2] Newline Escape, '\n', true" classname="plc.project.LexerTests" time="0.002"/>
   <testcase name="[3] Empty, '', false" classname="plc.project.LexerTests" time="0.002"/>
-  <testcase name="[4] Multiple, 'abc', false" classname="plc.project.LexerTests" time="0.005"/>
+  <testcase name="[4] Multiple, 'abc', false" classname="plc.project.LexerTests" time="0.001"/>
   <testcase name="[1] Example 1, LET x = 5;, [IDENTIFIER=LET@0, IDENTIFIER=x@4, OPERATOR==@6, INTEGER=5@8, OPERATOR=;@9]" classname="plc.project.LexerTests" time="0.002"/>
-  <testcase name="[2] Example 2, print(&quot;Hello, World!&quot;);, [IDENTIFIER=print@0, OPERATOR=(@5, STRING=&quot;Hello, World!&quot;@6, OPERATOR=)@21, OPERATOR=;@22]" classname="plc.project.LexerTests" time="0.006"/>
-  <testcase name="[1] Character, (, true" classname="plc.project.LexerTests" time="0.015"/>
-  <testcase name="[2] Comparison, &lt;=, true" classname="plc.project.LexerTests" time="0.001"/>
+  <testcase name="[2] Example 2, print(&quot;Hello, World!&quot;);, [IDENTIFIER=print@0, OPERATOR=(@5, STRING=&quot;Hello, World!&quot;@6, OPERATOR=)@21, OPERATOR=;@22]" classname="plc.project.LexerTests" time="0.002"/>
+  <testcase name="[1] Character, (, true" classname="plc.project.LexerTests" time="0.0"/>
+  <testcase name="[2] Comparison, &lt;=, true" classname="plc.project.LexerTests" time="0.002"/>
   <testcase name="[3] Space,  , false" classname="plc.project.LexerTests" time="0.001"/>
-  <testcase name="[4] Tab, &#9;, false" classname="plc.project.LexerTests" time="0.0"/>
+  <testcase name="[4] Tab, &#9;, false" classname="plc.project.LexerTests" time="0.001"/>
   <testcase name="[1] Integer, 1, false" classname="plc.project.LexerTests" time="0.002"/>
   <testcase name="[2] Multiple Digits, 123.456, true" classname="plc.project.LexerTests" time="0.001"/>
-  <testcase name="[3] Negative Decimal, -1.0, true" classname="plc.project.LexerTests" time="0.001"/>
-  <testcase name="[4] Trailing Decimal, 1., false" classname="plc.project.LexerTests" time="0.005"/>
+  <testcase name="[3] Negative Decimal, -1.0, true" classname="plc.project.LexerTests" time="0.0"/>
+  <testcase name="[4] Trailing Decimal, 1., false" classname="plc.project.LexerTests" time="0.002"/>
   <testcase name="[5] Leading Decimal, .5, false" classname="plc.project.LexerTests" time="0.001"/>
   <testcase name="[1] Single Digit, 1, true" classname="plc.project.LexerTests" time="0.001"/>
   <testcase name="[2] Decimal, 123.456, false" classname="plc.project.LexerTests" time="0.001"/>
-  <testcase name="[3] Signed Decimal, -1.0, false" classname="plc.project.LexerTests" time="0.001"/>
-  <testcase name="[4] Trailing Decimal, 1., false" classname="plc.project.LexerTests" time="0.0"/>
+  <testcase name="[3] Signed Decimal, -1.0, false" classname="plc.project.LexerTests" time="0.0"/>
+  <testcase name="[4] Trailing Decimal, 1., false" classname="plc.project.LexerTests" time="0.001"/>
   <testcase name="[5] Leading Decimal, .5, false" classname="plc.project.LexerTests" time="0.001"/>
   <testcase name="[1] Empty, &quot;&quot;, true" classname="plc.project.LexerTests" time="0.001"/>
   <testcase name="[2] Alphabetic, &quot;abc&quot;, true" classname="plc.project.LexerTests" time="0.001"/>
@@ -180,11 +180,11 @@
 </failure>
   </testcase>
   <testcase name="[4] Unterminated, &quot;unterminated, false" classname="plc.project.LexerTests" time="0.001"/>
-  <testcase name="[5] Invalid Escape, &quot;invalid\escape&quot;, false" classname="plc.project.LexerTests" time="0.001"/>
-  <testcase name="[1] Alphabetic, getName, true" classname="plc.project.LexerTests" time="0.002"/>
-  <testcase name="[2] Alphanumeric, thelegend27, true" classname="plc.project.LexerTests" time="0.0"/>
-  <testcase name="[3] Leading Hyphen, -five, false" classname="plc.project.LexerTests" time="0.002"/>
-  <testcase name="[4] Leading Digit, 1fish2fish3fishbluefish, false" classname="plc.project.LexerTests" time="0.002"/>
+  <testcase name="[5] Invalid Escape, &quot;invalid\escape&quot;, false" classname="plc.project.LexerTests" time="0.0"/>
+  <testcase name="[1] Alphabetic, getName, true" classname="plc.project.LexerTests" time="0.001"/>
+  <testcase name="[2] Alphanumeric, thelegend27, true" classname="plc.project.LexerTests" time="0.001"/>
+  <testcase name="[3] Leading Hyphen, -five, false" classname="plc.project.LexerTests" time="0.001"/>
+  <testcase name="[4] Leading Digit, 1fish2fish3fishbluefish, false" classname="plc.project.LexerTests" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
