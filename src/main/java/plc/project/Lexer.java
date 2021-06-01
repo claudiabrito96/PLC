@@ -118,7 +118,8 @@ public final class Lexer {
     }
 
     public void lexEscape() {
-        throw new UnsupportedOperationException(); //TODO
+        chars.skip();
+        throw new ParseException("Escaped", chars.index);
     }
 
     public Token lexOperator() {
