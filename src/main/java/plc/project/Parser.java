@@ -1,6 +1,9 @@
 package plc.project;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The parser takes the sequence of tokens emitted by the lexer and turns that
@@ -18,6 +21,7 @@ import java.util.List;
 public final class Parser {
 
     private final TokenStream tokens;
+
 
     public Parser(List<Token> tokens) {
         this.tokens = new TokenStream(tokens);
@@ -149,8 +153,26 @@ public final class Parser {
      * not strictly necessary.
      */
     public Ast.Expr parsePrimaryExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        if(match("NIL"))
+            return new Ast.Expr.Literal(null);
+        else if(match("TRUE"))
+            return new Ast.Expr.Literal(true);
+        else if(match("FALSE"))
+            return new Ast.Expr.Literal(false);
+        else if(match(Token.Type.INTEGER))
+            return new Ast.Expr.Literal(new BigInteger(tokens.get(-1).getLiteral()));
+        else if (match(Token.Type.DECIMAL))
+            return new Ast.Expr.Literal(new BigDecimal(tokens.get(-1).getLiteral()));
+        else if (match(Token.Type.CHARACTER))
+            return new Ast.Expr.Literal(new Character( tokens.get(-1).getLiteral().charAt(1)));
+        else if(match(Token.Type.STRING))
+            return new Ast.Expr.Literal(tokens.get(-1).getLiteral());
+        else
+            return new Ast.Expr.Group(parseExpression()); //Not Sure
+
     }
+
+
 
     /**
      * As in the lexer, returns {@code true} if the current sequence of tokens
