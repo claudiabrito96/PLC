@@ -2,3 +2,5 @@ plc/homework/RegexTests.java
  plc.homework.RegexTests
 plc/project/LexerTests.java
  plc.project.LexerTests
+plc/project/ParserExpressionTests.java
+ plc.project.ParserExpressionTests

@@ -108,7 +108,8 @@ public final class Parser {
      * Parses the {@code expression} rule.
      */
     public Ast.Expr parseExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+//        throw new UnsupportedOperationException(); //TODO
+        return parsePrimaryExpression();
     }
 
     /**
@@ -143,7 +144,7 @@ public final class Parser {
      * Parses the {@code secondary-expression} rule.
      */
     public Ast.Expr parseSecondaryExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        throw new UnsupportedOperationException();//TODO
     }
 
     /**
@@ -153,10 +154,10 @@ public final class Parser {
      * not strictly necessary.
      */
     public Ast.Expr parsePrimaryExpression() throws ParseException {
-        if(match("NIL"))
-            return new Ast.Expr.Literal(null);
-        else if(match("TRUE"))
+        if(match("TRUE"))
             return new Ast.Expr.Literal(true);
+        else if(match("NIL"))
+            return new Ast.Expr.Literal(null);
         else if(match("FALSE"))
             return new Ast.Expr.Literal(false);
         else if(match(Token.Type.INTEGER))
@@ -165,11 +166,30 @@ public final class Parser {
             return new Ast.Expr.Literal(new BigDecimal(tokens.get(-1).getLiteral()));
         else if (match(Token.Type.CHARACTER))
             return new Ast.Expr.Literal(new Character( tokens.get(-1).getLiteral().charAt(1)));
-        else if(match(Token.Type.STRING))
-            return new Ast.Expr.Literal(tokens.get(-1).getLiteral());
-        else
-            return new Ast.Expr.Group(parseExpression()); //Not Sure
+        else if(match(Token.Type.STRING)){
+            String st = tokens.get(-1).getLiteral();
 
+            int scape = 0;
+            for(int i  = 0; i< st.length(); i++){
+                if (st.charAt(i) == '\\')
+                    scape = i;
+            }
+
+            return new Ast.Expr.Literal(st.substring(1,st.length()-1));
+        } else if(match(Token.Type.IDENTIFIER)){
+            String name = tokens.get(-1).getLiteral();
+            return new Ast.Expr.Access(Optional.empty(),name);
+        }else if(match('(')) {
+            Ast.Expr expr = parseExpression();
+            if(!match(')')){
+                throw  new ParseException("Expected closing parenthesis.", tokens.index);
+            }
+            return  new Ast.Expr.Group(expr);
+        }
+        else{
+            throw new ParseException("error", tokens.index);
+
+        }
     }
 
 
