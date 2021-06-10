@@ -168,13 +168,13 @@ public final class Parser {
             return new Ast.Expr.Literal(new Character( tokens.get(-1).getLiteral().charAt(1)));
         else if(match(Token.Type.STRING)){
             String st = tokens.get(-1).getLiteral();
-
-            int scape = 0;
+            String scapeString = null;
             for(int i  = 0; i< st.length(); i++){
-                if (st.charAt(i) == '\\')
-                    scape = i;
+                if (st.charAt(i) == '\\'){
+                    scapeString = st.substring(0,i-1)+','+'\n'+st.substring(i+2);
+                    st = scapeString;
+                }
             }
-
             return new Ast.Expr.Literal(st.substring(1,st.length()-1));
         } else if(match(Token.Type.IDENTIFIER)){
             String name = tokens.get(-1).getLiteral();
