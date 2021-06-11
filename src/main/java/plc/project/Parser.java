@@ -144,7 +144,27 @@ public final class Parser {
      * Parses the {@code secondary-expression} rule.
      */
     public Ast.Expr parseSecondaryExpression() throws ParseException {
-        throw new UnsupportedOperationException();//TODO
+//       //TODO
+        Ast.Expr primExpr = parseExpression();
+        List<Ast.Expr> exprs = null;
+        String ident = null;
+
+        if(!match('.'))
+            return primExpr;
+        else {
+            while (match(Token.Type.IDENTIFIER)){
+                ident += tokens.get(-1).getLiteral();
+            }
+            if(!match('('))
+                return new Ast.Expr.Access(Optional.of(primExpr),ident);
+            else {
+                while (match(',')){
+                    Ast.Expr args = parseExpression();
+                    exprs.add(args);
+                }
+                return new Ast.Expr.Function(Optional.of(primExpr),ident,exprs);
+            }
+        }
     }
 
     /**
@@ -166,19 +186,39 @@ public final class Parser {
             return new Ast.Expr.Literal(new BigDecimal(tokens.get(-1).getLiteral()));
         else if (match(Token.Type.CHARACTER))
             return new Ast.Expr.Literal(new Character( tokens.get(-1).getLiteral().charAt(1)));
+        //Parsing string
         else if(match(Token.Type.STRING)){
+            //get string
             String st = tokens.get(-1).getLiteral();
-            String scapeString = null;
+            //Go through the string to find scape symbol
             for(int i  = 0; i< st.length(); i++){
                 if (st.charAt(i) == '\\'){
-                    scapeString = st.substring(0,i-1)+','+'\n'+st.substring(i+2);
-                    st = scapeString;
+                    //If scape symbol create new string with the appropriate scape
+                   st = st.replace("\\n","\n");
+                   st = st.replace("\\b","\b");
+                   st = st.replace("\\r", "\r");
+                   st = st.replace("\\t","\t");
+                   st = st.replace("\\'","\'");
+                   st = st.replace("\\\\","\\");
                 }
             }
+            // parse string without double quotes
             return new Ast.Expr.Literal(st.substring(1,st.length()-1));
         } else if(match(Token.Type.IDENTIFIER)){
-            String name = tokens.get(-1).getLiteral();
-            return new Ast.Expr.Access(Optional.empty(),name);
+            String ident = tokens.get(-1).getLiteral();
+            List<Ast.Expr> arguments = null;
+            if(!match('('))
+                return new Ast.Expr.Access(Optional.empty(),ident);
+            else {
+                if(!match(')'))
+                    throw new ParseException("Expected closing parenthesis", tokens.index);
+                else {
+                    arguments.add(parseExpression());
+                    while (match(','))
+                        arguments.add(parseExpression());
+                    return new Ast.Expr.Function(Optional.empty(),ident,arguments);
+                }
+            }
         }else if(match('(')) {
             Ast.Expr expr = parseExpression();
             if(!match(')')){
@@ -188,7 +228,6 @@ public final class Parser {
         }
         else{
             throw new ParseException("error", tokens.index);
-
         }
     }
 
