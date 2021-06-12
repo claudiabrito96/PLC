@@ -108,7 +108,7 @@ public final class Parser {
      * Parses the {@code expression} rule.
      */
     public Ast.Expr parseExpression() throws ParseException {
-//        throw new UnsupportedOperationException(); //TODO
+//       //TODO
         return parsePrimaryExpression();
     }
 
@@ -144,27 +144,26 @@ public final class Parser {
      * Parses the {@code secondary-expression} rule.
      */
     public Ast.Expr parseSecondaryExpression() throws ParseException {
-//       //TODO
+      //TODO
         Ast.Expr primExpr = parseExpression();
-        List<Ast.Expr> exprs = null;
-        String ident = null;
-
-        if(!match('.'))
-            return primExpr;
-        else {
-            while (match(Token.Type.IDENTIFIER)){
-                ident += tokens.get(-1).getLiteral();
-            }
-            if(!match('('))
-                return new Ast.Expr.Access(Optional.of(primExpr),ident);
-            else {
-                while (match(',')){
-                    Ast.Expr args = parseExpression();
-                    exprs.add(args);
+        if(match('.')){
+            String name = tokens.get(-1).getLiteral();
+            if(match('(')){
+                List<Ast.Expr> exprs = null;
+                while (!match(')')){
+                    exprs.add(parseExpression());
+                    if(!peek(')')){
+                        if(!match(','))
+                            throw new ParseException("Expected commas", tokens.index);
+                        else if(!match(')'))
+                            throw new ParseException("Trailing comma error", tokens.index);
+                    }
                 }
-                return new Ast.Expr.Function(Optional.of(primExpr),ident,exprs);
-            }
+                return new Ast.Expr.Function(Optional.of(primExpr),name,exprs);
+            }else
+                return new Ast.Expr.Access(Optional.of(primExpr),name);
         }
+        return new Ast.Expr.Access(Optional.empty(),primExpr.toString());
     }
 
     /**
@@ -205,20 +204,21 @@ public final class Parser {
             // parse string without double quotes
             return new Ast.Expr.Literal(st.substring(1,st.length()-1));
         } else if(match(Token.Type.IDENTIFIER)){
-            String ident = tokens.get(-1).getLiteral();
-            List<Ast.Expr> arguments = null;
-            if(!match('('))
-                return new Ast.Expr.Access(Optional.empty(),ident);
-            else {
-                if(!match(')'))
-                    throw new ParseException("Expected closing parenthesis", tokens.index);
-                else {
-                    arguments.add(parseExpression());
-                    while (match(','))
-                        arguments.add(parseExpression());
-                    return new Ast.Expr.Function(Optional.empty(),ident,arguments);
+            String name = tokens.get(-1).getLiteral();
+            if (match('(')){
+                List<Ast.Expr> args = null;
+                while (!match(')')){
+                    args.add(parseExpression());
+                    if(!peek(')')){
+                        if(!match(','))
+                            throw new ParseException("Expected commas", tokens.index);
+                        else if(peek(')'))
+                            throw new ParseException("Trailing comma error", tokens.index);
+                    }
                 }
-            }
+                return new Ast.Expr.Function(Optional.empty(),name,args);
+            }else
+                return new Ast.Expr.Access(Optional.empty(),name);
         }else if(match('(')) {
             Ast.Expr expr = parseExpression();
             if(!match(')')){
