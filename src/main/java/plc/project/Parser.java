@@ -190,6 +190,7 @@ public final class Parser {
     /**
      * Parses the {@code secondary-expression} rule.
      */
+    //If you look at the grammar secondary expression calls primary and so on
     public Ast.Expr parseSecondaryExpression() throws ParseException {
       //TODO
         Ast.Expr primExpr = parsePrimaryExpression();
@@ -221,6 +222,9 @@ public final class Parser {
      * not strictly necessary.
      */
     public Ast.Expr parsePrimaryExpression() throws ParseException {
+        //Match and peek just take a string or a Token.Type
+        //Daniel: First you have to look at the grammar. Here we are parsing primary expression. The grammar says:
+        //a primary expression  = TRUE. So,if match TRUE then we create a expresion Literal true as argument.
         if(match("TRUE"))
             return new Ast.Expr.Literal(true);
         else if(match("NIL"))
@@ -233,7 +237,8 @@ public final class Parser {
             return new Ast.Expr.Literal(new BigDecimal(tokens.get(-1).getLiteral()));
         else if (match(Token.Type.CHARACTER))
             return new Ast.Expr.Literal(new Character( tokens.get(-1).getLiteral().charAt(1)));
-        //Parsing string
+        //Here we are paring a string creating another ASt.Expr.Literal
+        //We have to check for double quotes and escapes
         else if(match(Token.Type.STRING)){
             //get string
             String st = tokens.get(-1).getLiteral();
@@ -251,6 +256,8 @@ public final class Parser {
             }
             // parse string without double quotes
             return new Ast.Expr.Literal(st.substring(1,st.length()-1));
+            //Here we are checking for an identifier if It does not have parentheses we create Expr.Access
+            //If it does we create a Expr.Function because for example getNum() is a function getNum is Identifier
         } else if(match(Token.Type.IDENTIFIER)){
             System.out.println("primary function call");
             String name = tokens.get(-1).getLiteral();
