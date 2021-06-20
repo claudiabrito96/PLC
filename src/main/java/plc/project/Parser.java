@@ -114,7 +114,14 @@ public final class Parser {
      * {@code RETURN}.
      */
     public Ast.Stmt.Return parseReturnStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+         if(match("RETURN")){
+             if(!match(";"))
+                 throw new ParseException("Semicolon expected ", tokens.index);
+              Ast.Expr expr = parseExpression();
+
+              return new Ast.Stmt.Return(expr);
+         } else
+             throw  new ParseException("Error", tokens.index);
     }
 
     /**
@@ -259,7 +266,6 @@ public final class Parser {
             //Here we are checking for an identifier if It does not have parentheses we create Expr.Access
             //If it does we create a Expr.Function because for example getNum() is a function getNum is Identifier
         } else if(match(Token.Type.IDENTIFIER)){
-            System.out.println("primary function call");
             String name = tokens.get(-1).getLiteral();
             if (match("(")){
                 List<Ast.Expr> args = new ArrayList<>();
