@@ -32,7 +32,15 @@ public final class Parser {
      * Parses the {@code source} rule.
      */
     public Ast.Source parseSource() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        List<Ast.Field> fields = new ArrayList<>();
+        List<Ast.Method> methods = new ArrayList<>();
+
+        while (match("LET"))
+            fields.add(parseField());
+        while (match("DEF"))
+            methods.add(parseMethod());
+
+        return new Ast.Source(fields,methods);
     }
 
     /**
@@ -40,7 +48,15 @@ public final class Parser {
      * next tokens start a field, aka {@code LET}.
      */
     public Ast.Field parseField() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        Ast.Expr expr = null;
+
+            String ident1 = tokens.get(-1).getLiteral();
+            if(match("="))
+                 expr = parseExpression();
+            if (!match(";"))
+                throw new ParseException("; expected", tokens.index);
+            return new Ast.Field(ident1,Optional.of(expr));
+
     }
 
     /**
@@ -48,7 +64,22 @@ public final class Parser {
      * next tokens start a method, aka {@code DEF}.
      */
     public Ast.Method parseMethod() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        List<String> indents = new ArrayList<>();
+        List<Ast.Stmt> stmts = new ArrayList<>();
+           String indent1 = tokens.get(-1).getLiteral();
+           if(!match("("))
+               throw new ParseException("Error", tokens.index);
+           while (!match(")")){
+               indents.add(tokens.get(-1).getLiteral());
+           }
+
+           if(!match("DO"))
+               throw new ParseException("DO expected", tokens.index);
+           while (!match("END")){
+               stmts.add(parseStatement());
+           }
+
+           return new Ast.Method(indent1,indents,stmts);
     }
 
     /**
@@ -57,19 +88,29 @@ public final class Parser {
      * statement, then it is an expression/assignment statement.
      */
     public Ast.Stmt parseStatement() throws ParseException {
+        if(match("LET"))
+           return parseDeclarationStatement();
+        else if(match("IF"))
+            return parseIfStatement();
+        else if(match("FOR"))
+            return parseForStatement();
+        else if(match("WHILE"))
+            return parseWhileStatement();
+        else if(match("RETURN"))
+            return parseReturnStatement();
+        else {
+            Ast.Expr expr = parseExpression();
 
-        //TODO
-        Ast.Expr expr = parseExpression();
+            if(match("=")){
+                Ast.Expr secExpr = parseExpression();
 
-        if(match("=")){
-            Ast.Expr secExpr = parseExpression();
-
-            if(!match(";"))
-                throw new ParseException("Expected ;", tokens.index);
-            else
-                return new Ast.Stmt.Assignment(expr,secExpr);
-        }else
-        throw new ParseException("Expected equal sign", tokens.index);
+                if(!match(";"))
+                    throw new ParseException("Expected ;", tokens.index);
+                else
+                    return new Ast.Stmt.Assignment(expr,secExpr);
+            }else
+                throw new ParseException("Expected equal sign", tokens.index);
+        }
     }
 
     /**
@@ -78,7 +119,14 @@ public final class Parser {
      * statement, aka {@code LET}.
      */
     public Ast.Stmt.Declaration parseDeclarationStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        Ast.Expr expr = null;
+            String ident = tokens.get(-1).getLiteral();
+             if(match("="))
+                  expr = parseExpression();
+             if(!match(";"))
+                 throw new ParseException("; expected", tokens.index);
+             return new Ast.Stmt.Declaration(ident,Optional.of(expr));
+
     }
 
     /**
@@ -87,7 +135,18 @@ public final class Parser {
      * {@code IF}.
      */
     public Ast.Stmt.If parseIfStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        List<Ast.Stmt> stmts = new ArrayList<>();
+        List<Ast.Stmt> elsestmt = new ArrayList<>();
+           Ast.Expr expr = parseExpression();
+           if(!match("DO"))
+               throw new ParseException("DO expected", tokens.index);
+           while (!match("END")) {
+               stmts.add(parseStatement());
+               if (match("ELSE")){
+                   elsestmt.add(parseStatement());
+               }
+           }
+           return new Ast.Stmt.If(expr,stmts,elsestmt);
     }
 
     /**
@@ -96,7 +155,18 @@ public final class Parser {
      * {@code FOR}.
      */
     public Ast.Stmt.For parseForStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        List<Ast.Stmt> stmts = new ArrayList<>();
+
+            String ident = tokens.get(-1).getLiteral();
+            if(!match("IN"))
+                throw new ParseException("IN expected", tokens.index);
+            Ast.Expr expr = parseExpression();
+            if (!match("DO"))
+                throw new ParseException("DO expected", tokens.index);
+            while (!match("END")){
+                stmts.add(parseStatement());
+            }
+            return new Ast.Stmt.For(ident,expr,stmts);
     }
 
     /**
@@ -105,7 +175,16 @@ public final class Parser {
      * {@code WHILE}.
      */
     public Ast.Stmt.While parseWhileStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        List<Ast.Stmt> stmts = new ArrayList<>();
+            Ast.Expr expr = parseExpression();
+            if(!match("DO"))
+                throw new ParseException("DO expected", tokens.index);
+            else {
+                while (!match("END")){
+                    stmts.add(parseStatement());
+                }
+            }
+            return new Ast.Stmt.While(expr,stmts);
     }
 
     /**
@@ -114,14 +193,13 @@ public final class Parser {
      * {@code RETURN}.
      */
     public Ast.Stmt.Return parseReturnStatement() throws ParseException {
-         if(match("RETURN")){
+
              if(!match(";"))
                  throw new ParseException("Semicolon expected ", tokens.index);
               Ast.Expr expr = parseExpression();
 
               return new Ast.Stmt.Return(expr);
-         } else
-             throw  new ParseException("Error", tokens.index);
+
     }
 
     /**
