@@ -50,7 +50,8 @@ public final class Parser {
     public Ast.Field parseField() throws ParseException {
         Ast.Expr expr = null;
 
-            String ident1 = tokens.get(-1).getLiteral();
+            String ident1 = tokens.get(0).getLiteral();
+            tokens.advance();
             if(match("="))
                  expr = parseExpression();
             if (!match(";"))
@@ -66,7 +67,8 @@ public final class Parser {
     public Ast.Method parseMethod() throws ParseException {
         List<String> indents = new ArrayList<>();
         List<Ast.Stmt> stmts = new ArrayList<>();
-           String indent1 = tokens.get(-1).getLiteral();
+           String indent1 = tokens.get(0).getLiteral();
+           tokens.advance();
            if(!match("("))
                throw new ParseException("Error", tokens.index);
            while (!match(")")){
@@ -75,7 +77,7 @@ public final class Parser {
 
            if(!match("DO"))
                throw new ParseException("DO expected", tokens.index);
-           while (!match("END")){
+           while (!match(";")){
                stmts.add(parseStatement());
            }
 
@@ -100,16 +102,14 @@ public final class Parser {
             return parseReturnStatement();
         else {
             Ast.Expr expr = parseExpression();
+//            if(!match(";"))
+//                throw new ParseException("Expected ;", tokens.index);
 
             if(match("=")){
                 Ast.Expr secExpr = parseExpression();
-
-                if(!match(";"))
-                    throw new ParseException("Expected ;", tokens.index);
-                else
-                    return new Ast.Stmt.Assignment(expr,secExpr);
+                return new Ast.Stmt.Assignment(expr,secExpr);
             }else
-                throw new ParseException("Expected equal sign", tokens.index);
+                return new Ast.Stmt.Expression(expr);
         }
     }
 
@@ -120,11 +120,11 @@ public final class Parser {
      */
     public Ast.Stmt.Declaration parseDeclarationStatement() throws ParseException {
         Ast.Expr expr = null;
-            String ident = tokens.get(-1).getLiteral();
-             if(match("="))
-                  expr = parseExpression();
-             if(!match(";"))
-                 throw new ParseException("; expected", tokens.index);
+            String ident = tokens.get(0).getLiteral();
+            tokens.advance();
+             if(!match("="))
+                 return new Ast.Stmt.Declaration(ident,Optional.empty());
+             expr = parseExpression();
              return new Ast.Stmt.Declaration(ident,Optional.of(expr));
 
     }
@@ -140,12 +140,15 @@ public final class Parser {
            Ast.Expr expr = parseExpression();
            if(!match("DO"))
                throw new ParseException("DO expected", tokens.index);
-           while (!match("END")) {
+           while (!match("END")){
                stmts.add(parseStatement());
-               if (match("ELSE")){
+               tokens.advance();
+               if(match("ELSE")){
                    elsestmt.add(parseStatement());
+                   tokens.advance();
                }
            }
+
            return new Ast.Stmt.If(expr,stmts,elsestmt);
     }
 
@@ -157,13 +160,16 @@ public final class Parser {
     public Ast.Stmt.For parseForStatement() throws ParseException {
         List<Ast.Stmt> stmts = new ArrayList<>();
 
-            String ident = tokens.get(-1).getLiteral();
-            if(!match("IN"))
-                throw new ParseException("IN expected", tokens.index);
+            String ident = tokens.get(0).getLiteral();
+            tokens.advance();
+            tokens.advance();
+            //if(!match("IN"))
+                //throw new ParseException("IN expected", tokens.index);
             Ast.Expr expr = parseExpression();
-            if (!match("DO"))
-                throw new ParseException("DO expected", tokens.index);
-            while (!match("END")){
+            tokens.advance();
+            //if (!match("DO"))
+                //throw new ParseException("DO expected", tokens.index);
+            while (!match(";")){
                 stmts.add(parseStatement());
             }
             return new Ast.Stmt.For(ident,expr,stmts);
@@ -180,9 +186,8 @@ public final class Parser {
             if(!match("DO"))
                 throw new ParseException("DO expected", tokens.index);
             else {
-                while (!match("END")){
+                while (!match(";"))
                     stmts.add(parseStatement());
-                }
             }
             return new Ast.Stmt.While(expr,stmts);
     }
@@ -193,12 +198,12 @@ public final class Parser {
      * {@code RETURN}.
      */
     public Ast.Stmt.Return parseReturnStatement() throws ParseException {
+        Ast.Expr expr = parseExpression();
 
-             if(!match(";"))
-                 throw new ParseException("Semicolon expected ", tokens.index);
-              Ast.Expr expr = parseExpression();
+        if(!match(";"))
+            throw new ParseException("Semicolon expected ", tokens.index);
 
-              return new Ast.Stmt.Return(expr);
+        return new Ast.Stmt.Return(expr);
 
     }
 
@@ -278,12 +283,15 @@ public final class Parser {
     //If you look at the grammar secondary expression calls primary and so on
     public Ast.Expr parseSecondaryExpression() throws ParseException {
       //TODO
+        List<Ast.Expr> exprs = new ArrayList<>();
         Ast.Expr primExpr = parsePrimaryExpression();
 
         while (match(".")){
-            String name = tokens.get(-1).getLiteral();
-            if(match("(")){
-                List<Ast.Expr> exprs = new ArrayList<>();
+            String name = tokens.get(0).getLiteral();
+            tokens.advance();
+            if(!match("("))
+                return new Ast.Expr.Access(Optional.of(primExpr),name);
+            else {
                 while (!match(")")){
                     exprs.add(parseExpression());
                     if(!peek(")")){
@@ -294,8 +302,7 @@ public final class Parser {
                     }
                 }
                 return new Ast.Expr.Function(Optional.of(primExpr),name,exprs);
-            }else
-                return new Ast.Expr.Access(Optional.of(primExpr),name);
+            }
         }
         return primExpr;
     }
@@ -392,6 +399,8 @@ public final class Parser {
                 if (patterns[i] != tokens.get(i).getType())
                     return false;
             } else if (patterns[i] instanceof String){
+                System.out.print("pattern: ");System.out.println(patterns[i]);
+                System.out.print("token: ");System.out.println(tokens.get(i).getLiteral());
                 if (!patterns[i].equals(tokens.get(i).getLiteral()))
                     return false;
             }else
