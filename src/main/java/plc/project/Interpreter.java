@@ -25,6 +25,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Source ast) {
+
         throw new UnsupportedOperationException(); //TODO
     }
 
@@ -40,12 +41,13 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Method ast) {
+
         throw new UnsupportedOperationException(); //TODO
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.Expression ast) {
-        scope.defineFunction(ast.getExpression(), );
+        visit(ast.getExpression());
         return Environment.NIL;
     }
 
@@ -61,6 +63,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.Assignment ast) {
+
         throw new UnsupportedOperationException(); //TODO
     }
 
@@ -90,17 +93,17 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.Return ast) {
-        throw new UnsupportedOperationException(); //TODO
+        throw new Return(visit(ast.getValue()));
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Literal ast) {
-        throw new UnsupportedOperationException(); //TODO
+        return Environment.create(ast.getLiteral());
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Group ast) {
-        throw new UnsupportedOperationException(); //TODO
+        return visit(ast.getExpression());
     }
 
     @Override
@@ -115,7 +118,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Function ast) {
-
+        throw new UnsupportedOperationException(); //TODO
     }
 
     /**
