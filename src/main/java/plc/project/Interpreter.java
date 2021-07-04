@@ -31,7 +31,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Field ast) {
-        if ( ast.getValue().isPresent())
+        if (ast.getValue().isPresent())
             scope.defineVariable( ast.getName(), visit( ast.getValue().get() ));
         else
             scope.defineVariable( ast.getName(), Environment.NIL);
@@ -53,7 +53,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.Declaration ast) {
-        if ( ast.getValue().isPresent())
+        if (ast.getValue().isPresent())
             scope.defineVariable( ast.getName(), visit( ast.getValue().get() ));
         else
             scope.defineVariable( ast.getName(), Environment.NIL);
@@ -79,7 +79,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.While ast) {
-        while ( requireType( Boolean.class, visit( ast.getCondition() ))){
+        while (requireType( Boolean.class, visit( ast.getCondition()))){
             try {
                 scope = new Scope(scope);
                 for ( Ast.Stmt stmt : ast.getStatements() )
@@ -88,7 +88,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
                 scope = scope.getParent();
             }
         }
-        return  Environment.NIL;
+        return Environment.NIL;
     }
 
     @Override
@@ -113,7 +113,12 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Access ast) {
-        throw new UnsupportedOperationException(); //TODO
+        if(ast.getReceiver().isPresent()) {
+            Environment.PlcObject obj = visit(ast.getReceiver().get());
+            return obj.getField(ast.getName()).getValue();
+        }else {
+            return scope.lookupVariable(ast.getName()).getValue();
+        }
     }
 
     @Override
