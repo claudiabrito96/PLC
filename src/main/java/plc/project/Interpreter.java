@@ -113,12 +113,11 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Access ast) {
-        if(ast.getReceiver().isPresent()) {
-            Environment.PlcObject obj = visit(ast.getReceiver().get());
-            return obj.getField(ast.getName()).getValue();
-        }else {
+        if(ast.getReceiver().isPresent())
+            return visit(ast.getReceiver().get()).getField(ast.getName()).getValue();
+        else
             return scope.lookupVariable(ast.getName()).getValue();
-        }
+
     }
 
     @Override
