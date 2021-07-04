@@ -93,7 +93,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.Return ast) {
-        throw new UnsupportedOperationException(); //TODO
+       throw  new Return(Environment.create(ast.getValue()));
     }
 
     @Override
@@ -111,7 +111,38 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Binary ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //Check if the operands are string or integer
+        String sright = visit(ast.getRight()).getValue().toString();
+        String sleft = visit(ast.getRight()).getValue().toString();
+
+        int right = Integer.parseInt(visit(ast.getRight()).getValue().toString());
+        int left = Integer.parseInt(visit(ast.getLeft()).getValue().toString());
+
+        //AND or OR
+        if(ast.getOperator().equals("<"))
+            return Environment.create(left < right);
+        else if(ast.getOperator().equals(">"))
+            return Environment.create(left > right);
+        else if(ast.getOperator().equals(">="))
+            return Environment.create(left >= right);
+        else if (ast.getOperator().equals("<="))
+            return Environment.create(left <= right);
+        else if(ast.getOperator().equals("=="))
+            return Environment.create(left == right);
+        else if (ast.getOperator().equals("+"))
+            //If string concatenate
+            //Check if integer or decimal
+            //Decimal -> BigDecimal
+            //Integer -> BigInteger
+            return Environment.create(left+right);
+        else if(ast.getOperator().equals("-"))
+            return Environment.create(left-right);
+        else if(ast.getOperator().equals("*"))
+            return Environment.create(left*right);
+        else if(ast.getOperator().equals("/"))
+            return Environment.create(left/right);
+        else
+            return Environment.NIL;
     }
 
     @Override
@@ -141,7 +172,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
     /**
      * Exception class for returning values.
      */
-    private static class Return extends RuntimeException {
+    public class Return extends RuntimeException {
 
         private final Environment.PlcObject value;
 
