@@ -112,14 +112,33 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
     @Override
     public Environment.PlcObject visit(Ast.Expr.Binary ast) {
         //Check if the operands are string or integer
-        String sright = visit(ast.getRight()).getValue().toString();
-        String sleft = visit(ast.getRight()).getValue().toString();
+        String sright = null;
+        String sleft = null;
 
-        int right = Integer.parseInt(visit(ast.getRight()).getValue().toString());
-        int left = Integer.parseInt(visit(ast.getLeft()).getValue().toString());
+        boolean bright = false;
+        boolean bleft = false;
+
+        int right = 0;
+        int left = 0;
+
+        sright = visit(ast.getRight()).getValue().toString();
+        sleft = visit(ast.getLeft()).getValue().toString();
+        if(sright.matches("[a-zA-Z_]*"))
+            bright = Boolean.parseBoolean(sright);
+        else
+            right = Integer.parseInt(sright);
+
+        if(sleft.matches("[a-zA-Z_]*"))
+            bleft = Boolean.parseBoolean(sleft);
+        else
+            left = Integer.parseInt(sleft);
 
         //AND or OR
-        if(ast.getOperator().equals("<"))
+        if(ast.getOperator().equals("AND"))
+            return Environment.create(bleft && bright);
+        else if(ast.getOperator().equals("OR"))
+            return Environment.create(bleft || bright);
+        else if(ast.getOperator().equals("<"))
             return Environment.create(left < right);
         else if(ast.getOperator().equals(">"))
             return Environment.create(left > right);
@@ -129,18 +148,19 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
             return Environment.create(left <= right);
         else if(ast.getOperator().equals("=="))
             return Environment.create(left == right);
-        else if (ast.getOperator().equals("+"))
-            //If string concatenate
-            //Check if integer or decimal
-            //Decimal -> BigDecimal
-            //Integer -> BigInteger
-            return Environment.create(left+right);
+        else if (ast.getOperator().equals("+")){
+            if(!sright.matches("[0-9.]*"))
+                return Environment.create(sleft+sright);
+            else
+                return Environment.create(new BigInteger(sleft).add(new BigInteger(sright)));
+
+        }
         else if(ast.getOperator().equals("-"))
             return Environment.create(left-right);
         else if(ast.getOperator().equals("*"))
             return Environment.create(left*right);
         else if(ast.getOperator().equals("/"))
-            return Environment.create(left/right);
+            return Environment.create(new BigDecimal(sleft).divide(new BigDecimal(sright)));
         else
             return Environment.NIL;
     }
