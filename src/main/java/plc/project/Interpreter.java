@@ -4,6 +4,7 @@ import jdk.nashorn.internal.runtime.Undefined;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
@@ -153,55 +154,114 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
     @Override
     public Environment.PlcObject visit(Ast.Expr.Binary ast) {
 
-
         if(ast.getOperator().equals("AND"))
             return Environment.create(requireType(Boolean.class,visit(ast.getLeft())) && requireType(Boolean.class,visit(ast.getRight())));
         else if(ast.getOperator().equals("OR"))
             return Environment.create(requireType(Boolean.class,visit(ast.getLeft())) || requireType(Boolean.class,visit(ast.getRight())));
-        else if(ast.getOperator().equals("<"))
-            return Environment.create(requireType(Comparable.class,visit(ast.getRight())).compareTo(requireType(Comparable.class,visit(ast.getLeft()))));
-        else if(ast.getOperator().equals(">"))
-            return Environment.create(requireType(Comparable.class,visit(ast.getLeft())).compareTo(requireType(Comparable.class,visit(ast.getRight()))));
-        else if(ast.getOperator().equals(">="))
-            return Environment.create(requireType(Comparable.class,visit(ast.getLeft())).compareTo(requireType(Comparable.class,visit(ast.getRight()))));
-        else if (ast.getOperator().equals("<="))
-            return Environment.create(requireType(Comparable.class,visit(ast.getLeft())).compareTo(requireType(Comparable.class,visit(ast.getRight()))));
-        else if(ast.getOperator().equals("=="))
-            return Environment.create(requireType(Comparable.class,visit(ast.getLeft())).equals(requireType(Comparable.class,visit(ast.getRight()))));
-        else if(ast.getOperator().equals("!="))
-            return Environment.create(!requireType(Comparable.class,visit(ast.getLeft())).equals(requireType(Comparable.class,visit(ast.getRight()))));
-        else if (ast.getOperator().equals("+")){
-            System.out.println(ast.getLeft().toString());
-            if(visit(ast.getLeft()).toString().matches("[A-Za-z]*"))
-                return Environment.create(requireType(String.class,visit(ast.getLeft())).concat(requireType(String.class,visit(ast.getRight()))));
-            else if(visit(ast.getLeft()).toString().matches("[0-9]*"))
-                return Environment.create(requireType(BigInteger.class,visit(ast.getLeft())).add(requireType(BigInteger.class,visit(ast.getRight()))));
+        else if(ast.getOperator().equals("<")){
+            if(requireType(Comparable.class,visit(ast.getLeft())).compareTo(requireType(Comparable.class,visit(ast.getRight()))) < 0)
+                return Environment.create(true);
             else
-                return Environment.create(requireType(BigDecimal.class,visit(ast.getLeft())).add(requireType(BigDecimal.class,visit(ast.getRight()))));
+                return Environment.create(false);
+        }
+        else if(ast.getOperator().equals(">")){
+            if(requireType(Comparable.class,visit(ast.getLeft())).compareTo(requireType(Comparable.class,visit(ast.getRight()))) > 0)
+                return Environment.create(true);
+            else
+                return Environment.create(false);
+        } else if(ast.getOperator().equals(">=")){
+            if(requireType(Comparable.class,visit(ast.getLeft())).compareTo(requireType(Comparable.class,visit(ast.getRight()))) >= 0)
+                return Environment.create(true);
+            else
+                return Environment.create(false);
+        } else if (ast.getOperator().equals("<=")){
+            if(requireType(Comparable.class,visit(ast.getLeft())).compareTo(requireType(Comparable.class,visit(ast.getRight()))) <= 0)
+                return Environment.create(true);
+            else
+                return Environment.create(false);
+        }
+        else if(ast.getOperator().equals("==")){
+            if(requireType(Comparable.class,visit(ast.getLeft())).compareTo(requireType(Comparable.class,visit(ast.getRight()))) == 0)
+                return Environment.create(true);
+            else
+                return Environment.create(false);
+        }
+        else if(ast.getOperator().equals("!=")){
+            if(requireType(Comparable.class,visit(ast.getLeft())).compareTo(requireType(Comparable.class,visit(ast.getRight()))) != 0)
+                return Environment.create(true);
+            else
+                return Environment.create(false);
+        }
+        else if (ast.getOperator().equals("+")){
+            Environment.PlcObject left = visit(ast.getLeft());
+            Environment.PlcObject right = visit(ast.getRight());
+            if(left.getValue() instanceof String)
+                return Environment.create(requireType(String.class,visit(ast.getLeft())).concat(requireType(String.class,visit(ast.getRight()))));
+            else if(left.getValue() instanceof BigInteger){
+                if (right.getValue() instanceof BigInteger)
+                    return Environment.create(requireType(BigInteger.class,visit(ast.getLeft())).add(requireType(BigInteger.class,visit(ast.getRight()))));
+                else
+                    throw new RuntimeException();
+            } else{
+                if(right.getValue() instanceof BigDecimal)
+                    return Environment.create(requireType(BigDecimal.class,visit(ast.getLeft())).add(requireType(BigDecimal.class,visit(ast.getRight()))));
+                else
+                    throw new RuntimeException();
+            }
 
         }
         else if(ast.getOperator().equals("-")){
-            if(!visit(ast.getLeft()).toString().matches("[0-9]*"))
-                return Environment.create(requireType(BigInteger.class,visit(ast.getLeft())).subtract(requireType(BigInteger.class,visit(ast.getRight()))));
-            else
-                return Environment.create(requireType(BigDecimal.class,visit(ast.getLeft())).subtract(requireType(BigDecimal.class,visit(ast.getRight()))));
+            Environment.PlcObject left = visit(ast.getLeft());
+            Environment.PlcObject right = visit(ast.getRight());
 
+            if(left.getValue() instanceof BigInteger){
+                if (right.getValue() instanceof BigInteger)
+                    return Environment.create(requireType(BigInteger.class,visit(ast.getLeft())).add(requireType(BigInteger.class,visit(ast.getRight()))));
+                else
+                    throw new RuntimeException();
+            } else{
+                if(right.getValue() instanceof BigDecimal)
+                    return Environment.create(requireType(BigDecimal.class,visit(ast.getLeft())).add(requireType(BigDecimal.class,visit(ast.getRight()))));
+                else
+                    throw new RuntimeException();
+            }
         }
         else if(ast.getOperator().equals("*")){
-            if(!visit(ast.getLeft()).toString().matches("[0-9]*"))
-                return Environment.create(requireType(BigInteger.class,visit(ast.getLeft())).multiply(requireType(BigInteger.class,visit(ast.getRight()))));
-            else
-                return Environment.create(requireType(BigDecimal.class,visit(ast.getLeft())).multiply(requireType(BigDecimal.class,visit(ast.getRight()))));
+            Environment.PlcObject left = visit(ast.getLeft());
+            Environment.PlcObject right = visit(ast.getRight());
+
+            if(left.getValue() instanceof BigInteger){
+                if (right.getValue() instanceof BigInteger)
+                    return Environment.create(requireType(BigInteger.class,visit(ast.getLeft())).add(requireType(BigInteger.class,visit(ast.getRight()))));
+                else
+                    throw new RuntimeException();
+            } else{
+                if(right.getValue() instanceof BigDecimal)
+                    return Environment.create(requireType(BigDecimal.class,visit(ast.getLeft())).add(requireType(BigDecimal.class,visit(ast.getRight()))));
+                else
+                    throw new RuntimeException();
+            }
 
         }
         else if(ast.getOperator().equals("/")){
-            if(!visit(ast.getLeft()).toString().matches("[0-9]*"))
-                return Environment.create(requireType(BigInteger.class,visit(ast.getLeft())).divide(requireType(BigInteger.class,visit(ast.getRight()))));
-            else
-                return Environment.create(requireType(BigDecimal.class,visit(ast.getLeft())).divide(requireType(BigDecimal.class,visit(ast.getRight()))));
+            Environment.PlcObject left = visit(ast.getLeft());
+            Environment.PlcObject right = visit(ast.getRight());
 
-        }
-        else
+            if(left.getValue() instanceof BigInteger){
+                if (right.getValue() instanceof BigInteger)
+                    return Environment.create(requireType(BigInteger.class,visit(ast.getLeft())).add(requireType(BigInteger.class,visit(ast.getRight()))));
+                else
+                    throw new RuntimeException();
+            } else{
+                if(right.getValue() instanceof BigDecimal){
+                    if(left.getValue().equals(0))
+                        throw new RuntimeException();
+                    else
+                        return Environment.create(requireType(BigDecimal.class,visit(ast.getLeft())).divide(requireType(BigDecimal.class,visit(ast.getRight())),1,RoundingMode.HALF_EVEN));
+                } else
+                    throw new RuntimeException();
+            }
+        } else
             return Environment.NIL;
     }
 
