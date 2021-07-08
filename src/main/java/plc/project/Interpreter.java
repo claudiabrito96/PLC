@@ -25,8 +25,24 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Source ast) {
+        Ast.Method MainMethod = null;
 
-        throw new UnsupportedOperationException(); //TODO
+        for(Ast.Field fields: ast.getFields())
+            visit(fields);
+
+        for(Ast.Method methods: ast.getMethods()) {
+            visit(methods);
+            String MethodName = methods.getName();
+            int paramNum = methods.getParameters().size();
+            if(MethodName.equals("main") && paramNum == 0) {
+                MainMethod = methods;
+            }
+        }
+        if(MainMethod != null) {
+            return scope.lookupFunction("main", 0).invoke(null);
+        }
+
+        throw new RuntimeException("The main function is not defined");
     }
 
     @Override
@@ -63,13 +79,36 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.Assignment ast) {
+        if(ast.getReceiver() == null)
+            throw new RuntimeException("Assignment Target Error!");
+        else if (!(ast.getReceiver() instanceof Ast.Expr.Access))
+            throw new RuntimeException("Assignment Target Error!");
 
-        throw new UnsupportedOperationException(); //TODO
+        Ast.Expr.Access target = (Ast.Expr.Access)ast.getReceiver();
+        String name = target.getName();
+        Environment.PlcObject value = visit(ast.getValue());
+        if(target.getReceiver().isPresent()) {
+            Environment.PlcObject receiver = visit(target.getReceiver().get());
+            receiver.setField(name, value);
+        }
+        else
+            scope.lookupVariable(name).setValue(value);
+
+        return Environment.NIL;
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.If ast) {
-        throw new UnsupportedOperationException(); //TODO
+        if(requireType(Boolean.class, visit(ast.getCondition()))) {
+            scope = new Scope(scope);
+            for(Ast.Stmt statement: ast.getThenStatements())
+                visit(statement);
+        }
+        else {
+            for(Ast.Stmt else_statement: ast.getElseStatements())
+                visit(else_statement);
+        }
+        return Environment.NIL;
     }
 
     @Override
