@@ -29,24 +29,28 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Source ast) {
-        Ast.Method MainMethod = null;
-
-        for(Ast.Field fields: ast.getFields())
-            visit(fields);
-
-        for(Ast.Method methods: ast.getMethods()) {
-            visit(methods);
-            String MethodName = methods.getName();
-            int paramNum = methods.getParameters().size();
-            if(MethodName.equals("main") && paramNum == 0) {
-                MainMethod = methods;
-            }
-        }
-        if(MainMethod != null) {
-            return scope.lookupFunction("main", 0).invoke(null);
-        }
-
-        throw new RuntimeException("The main function is not defined");
+        ast.getFields().forEach(this::visit);
+        ast.getMethods().forEach(this::visit);
+        List <Environment.PlcObject> args = new ArrayList<>();
+        return scope.lookupFunction("main",0).invoke(args);
+//        Ast.Method MainMethod = null;
+//
+//        for(Ast.Field fields: ast.getFields())
+//            visit(fields);
+//
+//        for(Ast.Method methods: ast.getMethods()) {
+//            visit(methods);
+//            String MethodName = methods.getName();
+//            int paramNum = methods.getParameters().size();
+//            if(MethodName.equals("main") && paramNum == 0) {
+//                MainMethod = methods;
+//            }
+//        }
+//        if(MainMethod != null) {
+//            return scope.lookupFunction("main", 0).invoke(null);
+//        }
+//
+//        throw new RuntimeException("The main function is not defined");
     }
 
     @Override
@@ -61,8 +65,27 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Method ast) {
-
-        throw new UnsupportedOperationException(); //TODO
+        Scope parent = scope;
+        scope.defineFunction(ast.getName(), ast.getParameters().size(),args -> {
+            Scope child = scope;
+            try {
+                scope = new Scope(parent);
+                for (int j = 0; j < args.size(); j++) {
+                    scope.defineVariable(ast.getParameters().get(j), args.get(j));
+                }try {
+                    for (Ast.Stmt stmt : ast.getStatements()){
+                        this.visit(stmt);
+                    }
+                    return  Environment.NIL;
+                }catch (Return exception) {
+                    System.out.println(exception.value.getValue());
+                    return exception.value;
+                }
+            }finally {
+                scope = child;
+            }
+        });
+        return Environment.NIL;
     }
 
     @Override
