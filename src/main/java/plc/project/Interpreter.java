@@ -7,6 +7,7 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -116,7 +117,19 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.For ast) {
-        throw new UnsupportedOperationException(); //TODO
+        Iterator iter = requireType(Iterable.class, visit(ast.getValue())).iterator();
+        while(iter.hasNext()) {
+            try {
+                Scope s = scope;
+                s.defineVariable(ast.getName(), visit((Ast.Expr)iter.next()));
+                for(Ast.Stmt statement: ast.getStatements())
+                    visit(statement);
+            }
+            finally {
+                scope = scope.getParent();
+            }
+        }
+        return Environment.NIL;
     }
 
     @Override
@@ -275,7 +288,20 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Function ast) {
-        throw new UnsupportedOperationException(); //TODO
+
+        List<Environment.PlcObject> args = new ArrayList<>();
+
+        for(Ast.Expr argument : ast.getArguments())
+            args.add(visit(argument));
+
+        Environment.PlcObject product;
+
+        if(ast.getReceiver().isPresent())
+            product = visit(ast.getReceiver().get()).callMethod(ast.getName(), args);
+        else
+            product = scope.lookupFunction(ast.getName(), ast.getArguments().size()).invoke(args);
+
+        return product;
     }
 
     /**
