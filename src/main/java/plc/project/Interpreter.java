@@ -21,6 +21,20 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
             System.out.println(args.get(0).getValue());
             return Environment.NIL;
         });
+
+        scope.defineFunction("logarithm",1,arg_list -> {
+            if ( !(arg_list.get(0).getValue() instanceof  BigDecimal)){
+                throw new RuntimeException("Expected type BigDecimal"+
+                        arg_list.get(0).getValue().getClass().getName() + ".");
+            }
+            BigDecimal bd1 = (BigDecimal) arg_list.get(0).getValue();
+            BigDecimal bd2 = requireType(
+                    BigDecimal.class,
+                    Environment.create(arg_list.get(0).getValue())
+            );
+            BigDecimal result = BigDecimal.valueOf(Math.log(bd2.doubleValue()));
+            return Environment.create(result);
+        });
     }
 
     public Scope getScope() {
@@ -32,25 +46,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
         ast.getFields().forEach(this::visit);
         ast.getMethods().forEach(this::visit);
         List <Environment.PlcObject> args = new ArrayList<>();
-        return scope.lookupFunction("main",0).invoke(args);
-//        Ast.Method MainMethod = null;
-//
-//        for(Ast.Field fields: ast.getFields())
-//            visit(fields);
-//
-//        for(Ast.Method methods: ast.getMethods()) {
-//            visit(methods);
-//            String MethodName = methods.getName();
-//            int paramNum = methods.getParameters().size();
-//            if(MethodName.equals("main") && paramNum == 0) {
-//                MainMethod = methods;
-//            }
-//        }
-//        if(MainMethod != null) {
-//            return scope.lookupFunction("main", 0).invoke(null);
-//        }
-//
-//        throw new RuntimeException("The main function is not defined");
+        return scope.lookupFunction("main",0).invoke(new ArrayList<>());
     }
 
     @Override
@@ -68,20 +64,18 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
         Scope parent = scope;
         scope.defineFunction(ast.getName(), ast.getParameters().size(),args -> {
             Scope child = scope;
-            try {
+
                 scope = new Scope(parent);
-                for (int j = 0; j < args.size(); j++) {
-                    scope.defineVariable(ast.getParameters().get(j), args.get(j));
+                for (int i = 0; i < args.size(); i++) {
+                    scope.defineVariable(ast.getParameters().get(i), args.get(i));
                 }try {
-                    for (Ast.Stmt stmt : ast.getStatements()){
-                        this.visit(stmt);
-                    }
+                    ast.getStatements().forEach(this :: visit);
                     return  Environment.NIL;
                 }catch (Return exception) {
-                    System.out.println(exception.value.getValue());
+                    System.out.println(exception);
                     return exception.value;
                 }
-            }finally {
+                finally {
                 scope = child;
             }
         });
@@ -141,10 +135,10 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
     @Override
     public Environment.PlcObject visit(Ast.Stmt.For ast) {
         Iterator iter = requireType(Iterable.class, visit(ast.getValue())).iterator();
-        while(iter.hasNext()) {
+        for (Object ob : requireType(Iterable.class, visit(ast.getValue()))){
             try {
-                Scope s = scope;
-                s.defineVariable(ast.getName(), visit((Ast.Expr)iter.next()));
+                scope = new Scope(scope);
+                scope.defineVariable(ast.getName(), (Environment.PlcObject) ob);
                 for(Ast.Stmt statement: ast.getStatements())
                     visit(statement);
             }
