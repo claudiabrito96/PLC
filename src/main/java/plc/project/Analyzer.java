@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -46,7 +47,48 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Declaration ast) {
-        throw new UnsupportedOperationException();  // TODO
+//        Optional optTypeName = ast.getTypeName();
+//        Optional<Ast.Expr> optValue = ast.getValue();
+//
+//        if(!optTypeName.isPresent() && !optValue.isPresent()) {
+//            throw  new RuntimeException("Declaration must have type or value to infer type.");
+//        }
+//
+//        Environment.Type type = null;
+//
+//        if(optTypeName.isPresent()){
+//            Object obj = optTypeName.get();
+//            String typeName = null;
+//
+//            if(obj instanceof String){
+//                typeName = (String) obj;
+//            }
+//            type = Environment.getType(typeName);
+//        }
+//
+        if(!ast.getTypeName().isPresent() && !ast.getValue().isPresent()){
+            throw new RuntimeException("Declaration must have type or value to infer type.");
+        }
+
+        Environment.Type type = null;
+
+        if(ast.getTypeName().isPresent()){
+            type = Environment.getType(ast.getTypeName().get());
+        }
+
+        if (ast.getValue().isPresent()){
+
+            visit(ast.getValue().get());
+
+            if(type == null){
+                type = ast.getValue().get().getType();
+            }
+
+            requireAssignable(type,ast.getValue().get().getType() );
+        }
+
+        ast.setVariable(scope.defineVariable(ast.getName(), ast.getName(), type, Environment.NIL));
+        return null;
     }
 
     @Override
