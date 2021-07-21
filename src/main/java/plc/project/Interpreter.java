@@ -151,7 +151,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.While ast) {
-        while (requireType( Boolean.class, visit( ast.getCondition()))){
+        while (requireType(Boolean.class, visit( ast.getCondition()))){
             try {
                 scope = new Scope(scope);
                 for ( Ast.Stmt stmt : ast.getStatements() )

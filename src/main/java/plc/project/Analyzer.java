@@ -42,7 +42,15 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Expression ast) {
-        throw new UnsupportedOperationException();  // TODO
+        visit(ast.getExpression());
+        try {
+            if (ast.getExpression().getClass() != Ast.Expr.Function.class)
+                throw new RuntimeException("Error: Function Type Missing.");
+        }
+        catch (RuntimeException re) {
+            throw new RuntimeException(re);
+        }
+        return null;
     }
 
     @Override
@@ -113,7 +121,15 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Return ast) {
-        throw new UnsupportedOperationException();  // TODO
+        visit(ast.getValue());
+        try {
+            requireAssignable(scope.lookupVariable("returnType").getType(), ast.getValue().getType());
+        }
+        catch (RuntimeException re) {
+            throw new RuntimeException(re);
+        }
+
+        return null;
     }
 
     @Override
@@ -142,7 +158,13 @@ public final class Analyzer implements Ast.Visitor<Void> {
     }
 
     public static void requireAssignable(Environment.Type target, Environment.Type type) {
-        throw new UnsupportedOperationException();  // TODO
+        try {
+            if (target != type && target != Environment.Type.ANY && target != Environment.Type.COMPARABLE)
+                throw new RuntimeException("Error: Types Do Not Match.");
+        }
+        catch (RuntimeException re) {
+            throw new RuntimeException(re);
+        }
     }
 
 }
