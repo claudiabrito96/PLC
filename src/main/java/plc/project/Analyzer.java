@@ -55,25 +55,6 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Declaration ast) {
-//        Optional optTypeName = ast.getTypeName();
-//        Optional<Ast.Expr> optValue = ast.getValue();
-//
-//        if(!optTypeName.isPresent() && !optValue.isPresent()) {
-//            throw  new RuntimeException("Declaration must have type or value to infer type.");
-//        }
-//
-//        Environment.Type type = null;
-//
-//        if(optTypeName.isPresent()){
-//            Object obj = optTypeName.get();
-//            String typeName = null;
-//
-//            if(obj instanceof String){
-//                typeName = (String) obj;
-//            }
-//            type = Environment.getType(typeName);
-//        }
-//
         if(!ast.getTypeName().isPresent() && !ast.getValue().isPresent()){
             throw new RuntimeException("Declaration must have type or value to infer type.");
         }
@@ -117,7 +98,22 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.If ast) {
-        throw new UnsupportedOperationException();  // TODO
+        //throw new UnsupportedOperationException();  // TODO
+        if(!ast.getCondition().getType().equals(Environment.Type.BOOLEAN))
+            throw new RuntimeException("The condition is not type boolean");
+
+        if(ast.getThenStatements().isEmpty())
+            throw new RuntimeException("The then statement is empty");
+
+        scope = new Scope(scope);
+        for (Ast.Stmt stmt: ast.getThenStatements())
+            visit(stmt);
+        scope = new Scope(scope);
+        for(Ast.Stmt stmt: ast.getElseStatements())
+            visit(stmt);
+
+        return null;
+
     }
 
     @Override
