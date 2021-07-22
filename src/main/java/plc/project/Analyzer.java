@@ -101,7 +101,18 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Assignment ast) {
-        throw new UnsupportedOperationException();  // TODO
+        try {
+            if (ast.getReceiver().getClass() != Ast.Expr.Access.class)
+                throw new RuntimeException("Error!");
+
+            visit(ast.getValue());
+            visit(ast.getReceiver());
+            requireAssignable(ast.getReceiver().getType(), ast.getValue().getType());
+        }
+        catch (RuntimeException re) {
+            throw new RuntimeException(re);
+        }
+        return null;
     }
 
     @Override
@@ -116,7 +127,23 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.While ast) {
-        throw new UnsupportedOperationException();  // TODO
+        try {
+            visit(ast.getCondition());
+            requireAssignable(Environment.Type.BOOLEAN, ast.getCondition().getType());
+            try {
+                scope = new Scope(scope);
+                for (Ast.Stmt statement : ast.getStatements())
+                    visit(statement);
+            }
+            finally {
+                scope = scope.getParent();
+            }
+        }
+        catch (RuntimeException re) {
+            throw new RuntimeException(re);
+        }
+
+        return null;
     }
 
     @Override
@@ -139,7 +166,21 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Group ast) {
-        throw new UnsupportedOperationException();  // TODO
+        try {
+            visit(ast.getExpression());
+            try {
+                if (ast.getExpression().getClass() != Ast.Expr.Binary.class)
+                    throw new RuntimeException("Error: Type is not binary.");
+            }
+            catch (RuntimeException re) {
+                throw new RuntimeException(re);
+            }
+        }
+        catch (RuntimeException re) {
+            throw new RuntimeException(re);
+        }
+
+        return null;
     }
 
     @Override
