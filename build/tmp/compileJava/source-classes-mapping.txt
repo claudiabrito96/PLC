@@ -24,8 +24,13 @@ plc/project/Ast.java
 plc/project/Token.java
  plc.project.Token
  plc.project.Token$Type
-plc/project/Analyzer.java
- plc.project.Analyzer
+plc/project/Environment.java
+ plc.project.Environment
+ plc.project.Environment$1
+ plc.project.Environment$Function
+ plc.project.Environment$PlcObject
+ plc.project.Environment$Type
+ plc.project.Environment$Variable
 plc/homework/Regex.java
  plc.homework.Regex
 plc/project/Interpreter.java
@@ -40,10 +45,5 @@ plc/project/Parser.java
  plc.project.Parser
  plc.project.Parser$1
  plc.project.Parser$TokenStream
-plc/project/Environment.java
- plc.project.Environment
- plc.project.Environment$1
- plc.project.Environment$Function
- plc.project.Environment$PlcObject
- plc.project.Environment$Type
- plc.project.Environment$Variable
+plc/project/Analyzer.java
+ plc.project.Analyzer
