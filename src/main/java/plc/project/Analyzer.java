@@ -98,7 +98,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.If ast) {
-        //throw new UnsupportedOperationException();  // TODO
+        //throw new UnsupportedOperationException();
         visit(ast.getCondition());
         requireAssignable(ast.getCondition().getType(), Environment.Type.BOOLEAN);
 
@@ -164,7 +164,43 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Literal ast) {
-        throw new UnsupportedOperationException();  // TODO
+        try {
+            if (ast.getLiteral() instanceof BigDecimal) {
+                try {
+                    if ((((BigDecimal) ast.getLiteral()).doubleValue() > Double.MAX_VALUE) ||
+                            (((BigDecimal) ast.getLiteral()).doubleValue() < Double.MIN_VALUE))
+                        throw new RuntimeException("Error");
+                    ast.setType(Environment.Type.DECIMAL);
+                }
+                catch (RuntimeException re) {
+                    throw new RuntimeException(re);
+                }
+            }
+            else if (ast.getLiteral() instanceof BigInteger) {
+                try {
+                    if ((((BigInteger) ast.getLiteral()).intValueExact() > Integer.MAX_VALUE) ||
+                            (((BigInteger) ast.getLiteral()).intValueExact() < Integer.MIN_VALUE))
+                        throw new RuntimeException("Error");
+                    ast.setType(Environment.Type.INTEGER);
+                }
+                catch (RuntimeException re) {
+                    throw new RuntimeException(re);
+                }
+            }
+            else if (ast.getLiteral() instanceof String)
+                ast.setType(Environment.Type.STRING);
+            else if (ast.getLiteral() instanceof Character)
+                ast.setType(Environment.Type.CHARACTER);
+            else if (ast.getLiteral() == Environment.NIL)
+                ast.setType(Environment.Type.NIL);
+            else if (ast.getLiteral() instanceof Boolean)
+                ast.setType(Environment.Type.BOOLEAN);
+        }
+        catch (RuntimeException re) {
+            throw new RuntimeException(re);
+        }
+
+        return null;
     }
 
     @Override
