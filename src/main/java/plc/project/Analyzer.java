@@ -27,12 +27,53 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Source ast) {
-        throw new UnsupportedOperationException();  // TODO
+        try {
+            boolean main = false;
+
+            if (!ast.getFields().isEmpty()) {
+                for (int i = 0; i < ast.getFields().size(); i++)
+                    visit(ast.getFields().get(i));
+            }
+            if (!ast.getMethods().isEmpty()) {
+                for (int i = 0; i < ast.getMethods().size(); i++) {
+                    visit(ast.getMethods().get(i));
+                    Ast.Method temp = ast.getMethods().get(i);
+                    if (temp.getName().equals("main") && temp.getReturnTypeName().get().equals("Integer") && temp.getParameters().isEmpty()) {
+                        main = true;
+                    }
+                }
+            }
+
+            if (!main) {
+                throw new RuntimeException("Error: No main method!");
+            }
+        }
+        catch (RuntimeException re) {
+            throw new RuntimeException(re);
+        }
+
+
+        return null;
     }
 
     @Override
     public Void visit(Ast.Field ast) {
-        throw new UnsupportedOperationException();  // TODO
+        try {
+            if (ast.getValue().isPresent()) {
+                visit(ast.getValue().get());
+                requireAssignable(Environment.getType(ast.getTypeName()), ast.getValue().get().getType());
+                scope.defineVariable(ast.getName(), ast.getName(), ast.getValue().get().getType(), Environment.NIL);
+            }
+            else {
+                scope.defineVariable(ast.getName(), ast.getName(), Environment.getType(ast.getTypeName()), Environment.NIL);
+            }
+            ast.setVariable(scope.lookupVariable(ast.getName()));
+        }
+        catch (RuntimeException re) {
+            throw new RuntimeException(re);
+        }
+
+        return null;
     }
 
     @Override
@@ -229,7 +270,27 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Access ast) {
-        throw new UnsupportedOperationException();  // TODO
+        try {
+            if (ast.getReceiver().isPresent()) {
+                Ast.Expr.Access temp = (Ast.Expr.Access) ast.getReceiver().get();
+                temp.setVariable(scope.lookupVariable(temp.getName()));
+                try {
+                    scope = scope.lookupVariable(temp.getName()).getType().getScope();
+                    ast.setVariable(scope.lookupVariable(ast.getName()));
+                }
+                finally {
+                    scope = scope.getParent();
+                }
+            }
+            else {
+                ast.setVariable(scope.lookupVariable(ast.getName()));
+            }
+        }
+        catch (RuntimeException re) {
+            throw new RuntimeException(re);
+        }
+
+        return null;
     }
 
     @Override
