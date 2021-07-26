@@ -265,7 +265,51 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Binary ast) {
-        throw new UnsupportedOperationException();  // TODO
+        //throw new UnsupportedOperationException();  // TODO
+        if(ast.getOperator().equals("AND")||ast.getOperator().equals("OR")){
+            visit(ast.getRight());
+            requireAssignable(ast.getRight().getType(),Environment.Type.BOOLEAN);
+            visit(ast.getLeft());
+            requireAssignable(ast.getLeft().getType(),Environment.Type.BOOLEAN);
+            ast.setType(Environment.Type.BOOLEAN);
+        }else if(ast.getOperator().equals("<")||
+                ast.getOperator().equals("<=")||
+                ast.getOperator().equals(">") ||
+                ast.getOperator().equals(">=")||
+                ast.getOperator().equals("==")||
+                ast.getOperator().equals("!==")){
+            visit(ast.getLeft());
+            requireAssignable(ast.getLeft().getType(),Environment.Type.COMPARABLE);
+            visit(ast.getRight());
+            requireAssignable(ast.getRight().getType(),Environment.Type.COMPARABLE);
+            ast.setType(Environment.Type.INTEGER);
+        }else if(ast.getOperator().equals("+")){
+            if(ast.getRight().getType().equals(Environment.Type.STRING)||ast.getLeft().getType().equals(Environment.Type.STRING)){
+                ast.setType(Environment.Type.STRING);
+            }
+            if(ast.getLeft().getType().equals(Environment.Type.INTEGER)){
+                visit(ast.getRight());
+                requireAssignable(ast.getRight().getType(),Environment.Type.INTEGER);
+                ast.setType(Environment.Type.INTEGER);
+            }
+            if(ast.getLeft().getType().equals(Environment.Type.DECIMAL)){
+                visit(ast.getRight());
+                requireAssignable(ast.getRight().getType(),Environment.Type.DECIMAL);
+                ast.setType(Environment.Type.DECIMAL);
+            }
+        }else {
+            if(ast.getLeft().getType().equals(Environment.Type.INTEGER)){
+                visit(ast.getRight());
+                requireAssignable(ast.getRight().getType(),Environment.Type.INTEGER);
+                ast.setType(Environment.Type.INTEGER);
+            }
+            if(ast.getLeft().getType().equals(Environment.Type.DECIMAL)){
+                visit(ast.getRight());
+                requireAssignable(ast.getRight().getType(),Environment.Type.DECIMAL);
+                ast.setType(Environment.Type.DECIMAL);
+            }
+        }
+        return null;
     }
 
     @Override
