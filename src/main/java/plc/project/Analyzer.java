@@ -295,7 +295,41 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Function ast) {
-        throw new UnsupportedOperationException();  // TODO
+        List<Environment.Type> f_parameters;
+
+        try {
+            if (ast.getReceiver().isPresent()) {
+                visit(ast.getReceiver().get());
+
+                f_parameters = scope.lookupVariable(((Ast.Expr.Access) ast.getReceiver().get()).getName()).getType().getMethod(ast.getName(),
+                        ast.getArguments().size()).getParameterTypes();
+
+                for (int i = 0; i < ast.getArguments().size(); i++) {
+                    visit(ast.getArguments().get(i));
+                    requireAssignable(f_parameters.get(i + 1), ast.getArguments().get(i).getType());
+                }
+
+                ast.setFunction(scope.lookupVariable(((Ast.Expr.Access) ast.getReceiver().get()).getName()).getType().getMethod(ast.getName(),
+                        ast.getArguments().size()));
+
+            }
+            else {
+                f_parameters = scope.lookupFunction(ast.getName(),
+                        ast.getArguments().size()).getParameterTypes();
+
+                for (int i = 0; i < ast.getArguments().size(); i++) {
+                    visit(ast.getArguments().get(i));
+                    requireAssignable(f_parameters.get(i), ast.getArguments().get(i).getType());
+                }
+
+                ast.setFunction(scope.lookupFunction(ast.getName(), ast.getArguments().size()));
+            }
+        }
+        catch (RuntimeException re) {
+            throw new RuntimeException(re);
+        }
+
+        return null;
     }
 
     public static void requireAssignable(Environment.Type target, Environment.Type type) {
