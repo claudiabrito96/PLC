@@ -78,7 +78,44 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Method ast) {
-        throw new UnsupportedOperationException();  // TODO
+        Environment.Type r_type;
+        List<String> parameters = ast.getParameterTypeNames();
+        Environment.Type[] _parameters = new Environment.Type[parameters.size()];
+
+        try {
+
+            if (!ast.getStatements().isEmpty()) {
+                for (int i = 0; i < ast.getStatements().size(); i++) {
+                    try {
+                        scope = new Scope(scope);
+                        visit(ast.getStatements().get(i));
+                    }
+                    finally {
+                        scope = scope.getParent();
+                    }
+                }
+            }
+
+            if (!ast.getReturnTypeName().isPresent())
+                r_type = Environment.Type.NIL;
+            else
+                r_type = Environment.getType(ast.getReturnTypeName().get());
+
+            if (!parameters.isEmpty()) {
+                for (int i = 0; i < parameters.size(); i++)
+                    _parameters[i] = Environment.getType(parameters.get(i));
+            }
+
+            scope.defineVariable("r_type", "r_type", r_type, Environment.NIL);
+            scope.defineFunction(ast.getName(), ast.getName(), Arrays.asList(_parameters), r_type, args -> Environment.NIL);
+            ast.setFunction(scope.lookupFunction(ast.getName(), ast.getParameters().size()));
+
+        }
+        catch (RuntimeException re) {
+            throw new RuntimeException(re);
+        }
+
+        return null;
     }
 
     @Override
@@ -166,7 +203,30 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.For ast) {
-        throw new UnsupportedOperationException();  // TODO
+        try {
+            if (ast.getStatements().isEmpty())
+                throw new RuntimeException("Error");
+
+            visit(ast.getValue());
+            requireAssignable(Environment.Type.INTEGER_ITERABLE, ast.getValue().getType());
+
+            ast.getStatements().forEach(stmt ->
+            {
+                try {
+                    scope = new Scope(scope);
+                    scope.defineVariable(ast.getName(), ast.getName(), Environment.Type.INTEGER, Environment.NIL);
+                }
+                finally {
+                    scope = scope.getParent();
+                }
+            }
+            );
+        }
+        catch (RuntimeException re) {
+            throw new RuntimeException(re);
+        }
+
+        return null;
     }
 
     @Override
