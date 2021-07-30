@@ -47,3 +47,5 @@ plc/project/Environment.java
  plc.project.Environment$PlcObject
  plc.project.Environment$Type
  plc.project.Environment$Variable
+plc/project/Generator.java
+ plc.project.Generator
