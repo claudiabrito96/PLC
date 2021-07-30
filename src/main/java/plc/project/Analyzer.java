@@ -326,49 +326,40 @@ public final class Analyzer implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Expr.Binary ast) {
         //throw new UnsupportedOperationException();  // TODO
-        if(ast.getOperator().equals("AND")||ast.getOperator().equals("OR")){
-            visit(ast.getRight());
-            requireAssignable(ast.getRight().getType(),Environment.Type.BOOLEAN);
-            visit(ast.getLeft());
-            requireAssignable(ast.getLeft().getType(),Environment.Type.BOOLEAN);
-            ast.setType(Environment.Type.BOOLEAN);
-        }else if(ast.getOperator().equals("<")||
-                ast.getOperator().equals("<=")||
-                ast.getOperator().equals(">") ||
-                ast.getOperator().equals(">=")||
-                ast.getOperator().equals("==")||
-                ast.getOperator().equals("!==")){
-            visit(ast.getLeft());
-            requireAssignable(ast.getLeft().getType(),Environment.Type.COMPARABLE);
-            visit(ast.getRight());
-            requireAssignable(ast.getRight().getType(),Environment.Type.COMPARABLE);
-            ast.setType(Environment.Type.INTEGER);
-        }else if(ast.getOperator().equals("+")){
-            if(ast.getRight().getType().equals(Environment.Type.STRING)||ast.getLeft().getType().equals(Environment.Type.STRING)){
-                ast.setType(Environment.Type.STRING);
-            }
-            if(ast.getLeft().getType().equals(Environment.Type.INTEGER)){
-                visit(ast.getRight());
-                requireAssignable(ast.getRight().getType(),Environment.Type.INTEGER);
-                ast.setType(Environment.Type.INTEGER);
-            }
-            if(ast.getLeft().getType().equals(Environment.Type.DECIMAL)){
-                visit(ast.getRight());
-                requireAssignable(ast.getRight().getType(),Environment.Type.DECIMAL);
-                ast.setType(Environment.Type.DECIMAL);
-            }
-        }else {
-            if(ast.getLeft().getType().equals(Environment.Type.INTEGER)){
-                visit(ast.getRight());
-                requireAssignable(ast.getRight().getType(),Environment.Type.INTEGER);
-                ast.setType(Environment.Type.INTEGER);
-            }
-            if(ast.getLeft().getType().equals(Environment.Type.DECIMAL)){
-                visit(ast.getRight());
-                requireAssignable(ast.getRight().getType(),Environment.Type.DECIMAL);
-                ast.setType(Environment.Type.DECIMAL);
-            }
+        visit(ast.getLeft());
+        visit(ast.getRight());
+        switch (ast.getOperator()) {
+            case "AND": case "OR":
+                requireAssignable(Environment.Type.BOOLEAN,ast.getRight().getType());
+                requireAssignable(Environment.Type.BOOLEAN,ast.getLeft().getType());
+                ast.setType(Environment.Type.BOOLEAN);
+                break;
+            case "<": case "<=": case ">": case ">=": case "==": case "!=":
+                requireAssignable(Environment.Type.COMPARABLE,ast.getLeft().getType());
+                requireAssignable(ast.getLeft().getType(),ast.getRight().getType());
+                ast.setType(Environment.Type.BOOLEAN);
+                break;
+            case "+":
+                if(ast.getLeft().getType().equals(Environment.Type.STRING)||ast.getRight().getType().equals(Environment.Type.STRING)) {
+                    ast.setType(Environment.Type.STRING);
+                    break;
+                }
+            case "-": case "*": case "/":
+                if(ast.getLeft().getType().equals(Environment.Type.INTEGER)){
+                    requireAssignable(Environment.Type.INTEGER,ast.getRight().getType());
+                    ast.setType(Environment.Type.INTEGER);
+                }
+                else if(ast.getLeft().getType().equals(Environment.Type.DECIMAL)){
+                    requireAssignable(Environment.Type.DECIMAL,ast.getRight().getType());
+                    ast.setType(Environment.Type.DECIMAL);
+                }else
+                    throw new RuntimeException("invalid type");
+                break;
+            default:
+                throw new AssertionError(ast.getOperator());
         }
+
+
         return null;
     }
 
