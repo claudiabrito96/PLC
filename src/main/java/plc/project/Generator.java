@@ -34,6 +34,14 @@ public final class Generator implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Source ast) {
         //throw new UnsupportedOperationException(); //TODO
+        //create a "class Main {"
+        //declare fields
+        //declare "public static void main(String[] args) {
+        //                    System.exit(new Main().main());
+        //}"
+        //declare each of our methods
+        //one of our methods is called main()!
+
         return null;
     }
 
@@ -114,6 +122,19 @@ public final class Generator implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Stmt.While ast) {
         //throw new UnsupportedOperationException(); //TODO
+        print("while (", ast.getCondition(), ") {");
+
+        if(!ast.getStatements().isEmpty()) {
+            newline(++indent);
+            for (int i = 0; i <ast.getStatements().size(); i++){
+                if( i != 0){
+                    newline(indent);
+                }
+                print(ast.getStatements().get(i));
+            }
+            newline(--indent);
+        }
+        print("}");
         return null;
     }
 
