@@ -53,7 +53,7 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Method ast) {
-       // throw new UnsupportedOperationException(); //TODO
+       // throw new UnsupportedOperationException();
         print(ast.getFunction().getReturnType().getJvmName() + " " + ast.getFunction().getName() + "(");
 
        // generate(IntStream.range(0, ast.getParameters().size()).mapToObj(i -> ast.getFunction().getParameterTypes().get(i).getJvmName() + " " + ast.getParameters().get(i)).collect(Collectors)
@@ -76,14 +76,14 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Expression ast) {
-        //throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException();
         print(ast.getExpression() + ";");
         return null;
     }
 
     @Override
     public Void visit(Ast.Stmt.Declaration ast) {
-        //throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException();
         print(ast.getVariable().getType().getJvmName(), " ", ast.getVariable().getJvmName());
         if (ast.getValue().isPresent())
             print(" = ", ast.getValue().get());
@@ -93,7 +93,7 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Assignment ast) {
-        //throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException();
         print(ast.getReceiver() + " = " + ast.getValue() + ";");
         return null;
     }
@@ -106,7 +106,7 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.For ast) {
-        //throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException();
         print("for (" + ast.getValue().getType()+ " " + ast.getName() + " : " + ast.getValue() + "{");
         newline(++indent);
         for (int i = 0; i <ast.getStatements().size(); i++){
@@ -121,7 +121,7 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.While ast) {
-        //throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException();
         print("while (", ast.getCondition(), ") {");
 
         if(!ast.getStatements().isEmpty()) {
@@ -140,7 +140,7 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Return ast) {
-        //throw new UnsupportedOperationException(); //TODO
+        print("return " + ast.getValue() + ";");
         return null;
     }
 
@@ -152,7 +152,7 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Group ast) {
-        //throw new UnsupportedOperationException(); //TODO
+        print("(" + ast.getExpression() + ")");
         return null;
     }
 
@@ -164,7 +164,7 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Access ast) {
-        //throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException();
         if(ast.getReceiver().isPresent())
             print(ast.getReceiver().get() + ".");
         print(ast.getVariable().getJvmName());
@@ -173,7 +173,7 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Function ast) {
-        //throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException();
         if(ast.getReceiver().isPresent())
             print(ast.getReceiver().get() + ".");
         print(ast.getFunction().getJvmName() + "(");

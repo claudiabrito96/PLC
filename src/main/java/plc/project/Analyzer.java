@@ -325,7 +325,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Binary ast) {
-        //throw new UnsupportedOperationException();  // TODO
+        //throw new UnsupportedOperationException();
         visit(ast.getLeft());
         visit(ast.getRight());
         switch (ast.getOperator()) {
