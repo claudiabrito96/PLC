@@ -1,6 +1,8 @@
 package plc.project;
 
 import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -146,7 +148,18 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Literal ast) {
-        //throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException();
+        if (ast.getType() == Environment.Type.DECIMAL)
+            print(((BigDecimal) ast.getLiteral()).doubleValue());
+        else if (ast.getType() == Environment.Type.INTEGER)
+            print(((BigInteger) ast.getLiteral()).intValue());
+        else if (ast.getType() == Environment.Type.CHARACTER)
+            print("'" + ast.getLiteral() + "'");
+        else if (ast.getType() == Environment.Type.STRING)
+            print("\"" + ast.getLiteral() + "\"");
+        else
+            print(ast.getLiteral());
+
         return null;
     }
 
@@ -158,7 +171,17 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Binary ast) {
-        //throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException();
+        print(ast.getLeft() + " ");
+        if (ast.getOperator().equals("OR"))
+            print("||");
+        else if (ast.getOperator().equals("AND"))
+            print("&&");
+        else
+            print(ast.getOperator());
+
+        print(" " + ast.getRight());
+
         return null;
     }
 
