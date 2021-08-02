@@ -65,7 +65,7 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Field ast) {
-       // throw new UnsupportedOperationException();
+        // throw new UnsupportedOperationException();
         switch (ast.getTypeName()) {
             case "Integer":
                 print("int");
@@ -96,7 +96,7 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Method ast) {
-       // throw new UnsupportedOperationException();
+        // throw new UnsupportedOperationException();
         print(ast.getFunction().getReturnType().getJvmName() + " " + ast.getFunction().getName() + "(");
 
         for (int i = 0; i < ast.getParameters().size(); i++) {
@@ -264,16 +264,26 @@ public final class Generator implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Expr.Function ast) {
         //throw new UnsupportedOperationException();
-        if(ast.getReceiver().isPresent())
-            print(ast.getReceiver().get() + ".");
-        print(ast.getFunction().getJvmName() + "(");
-        for ( int i=0; i < ast.getArguments().size(); i++) {
-            print(ast.getArguments().get(i)+", ");
+
+        if (ast.getReceiver().isPresent()) {
+            Ast.Expr temp = ast.getReceiver().get();
+            print(temp);
+            print(".");
         }
-        //print(ast.getArguments().get(0));
+
+        print(ast.getFunction().getJvmName() + "(");
+
+        if (!ast.getArguments().isEmpty()) {
+            for (int i = 0; i < ast.getArguments().size(); i++) {
+                print(ast.getArguments().get(i));
+                if (i != ast.getArguments().size() - 1)
+                    print(", ");
+            }
+        }
 
         print(")");
         return null;
+
     }
 
 }
