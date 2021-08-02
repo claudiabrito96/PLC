@@ -127,6 +127,7 @@ public final class Generator implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Stmt.Expression ast) {
         //throw new UnsupportedOperationException();
+
         print(ast.getExpression());
         print(";");
         return null;
