@@ -44,16 +44,16 @@ public final class Generator implements Ast.Visitor<Void> {
         }
         print("public static void main(String[] args) {");
         newline(++indent);
-        print("System.exit(new Main().main()); ");
+        print("System.exit(new Main().main());");
         newline(--indent);
         print("}");
-        newline(indent);
+        newline(0);
         newline(indent);
         for (Ast.Method method:ast.getMethods()) {
             visit(method);
         }
-        newline(indent);
-        newline(--indent);
+        newline(0);
+        newline(0);
         print("}");
         return null;
     }
