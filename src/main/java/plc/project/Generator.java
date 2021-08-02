@@ -123,7 +123,7 @@ public final class Generator implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Stmt.Expression ast) {
         //throw new UnsupportedOperationException();
-        print(ast.getExpression() + ";");
+        print(ast.getExpression()+ ";");
         return null;
     }
 
@@ -255,8 +255,10 @@ public final class Generator implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Expr.Access ast) {
         //throw new UnsupportedOperationException();
-        if(ast.getReceiver().isPresent())
-            print(ast.getReceiver().get() + ".");
+        if(ast.getReceiver().isPresent()){
+            print(ast.getReceiver().get());
+            print(".");
+        }
         print(ast.getVariable().getJvmName());
         return null;
     }
