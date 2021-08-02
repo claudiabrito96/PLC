@@ -49,7 +49,32 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Field ast) {
-       // throw new UnsupportedOperationException(); //TODO
+       // throw new UnsupportedOperationException();
+        switch (ast.getTypeName()) {
+            case "Integer":
+                print("int");
+                break;
+            case "Decimal":
+                print("double");
+                break;
+            case "Boolean":
+                print("boolean");
+                break;
+            case "Character":
+                print("char");
+                break;
+            case "String":
+                print("String");
+                break;
+        }
+
+        print(" " + ast.getName());
+
+        if (ast.getValue().isPresent())
+            print(" = " + ast.getValue().get());
+
+        print(";");
+
         return null;
     }
 
