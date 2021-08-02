@@ -265,8 +265,11 @@ public final class Generator implements Ast.Visitor<Void> {
         if(ast.getReceiver().isPresent())
             print(ast.getReceiver().get() + ".");
         print(ast.getFunction().getJvmName() + "(");
+        for ( int i=0; i < ast.getArguments().size(); i++) {
+            print(ast.getArguments().get(i)+", ");
+        }
+        //print(ast.getArguments().get(0));
 
-        //generate(ast.getArguments());
         print(")");
         return null;
     }
