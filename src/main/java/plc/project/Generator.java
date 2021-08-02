@@ -37,20 +37,26 @@ public final class Generator implements Ast.Visitor<Void> {
     public Void visit(Ast.Source ast) {
         //throw new UnsupportedOperationException(); //TODO
         //create a "class Main {"
-        print("class main {");
+        print("public class Main {");
         //declare fields
+        newline(indent);
+        newline(++indent);
         for (Ast.Field field:ast.getFields()) {
-            print(field.getName());
+            visit(field);
         }
         //declare "public static void main(String[] args) {
         //                    System.exit(new Main().main());
         //}"
-        print("public static void main(String[] args) {" +
-                "System.exit(new Main().main()); " +
-                "}");
+        print("public static void main(String[] args) {");
+        newline(++indent);
+        print("System.exit(new Main().main()); ");
+        newline(--indent);
+        print("}");
+        newline(indent);
+        newline(indent);
         //declare each of our methods
         for (Ast.Method method:ast.getMethods()) {
-            print(method.getName());
+            visit(method);
         }
         //one of our methods is called main()!
 
