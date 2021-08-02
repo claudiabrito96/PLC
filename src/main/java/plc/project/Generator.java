@@ -99,21 +99,24 @@ public final class Generator implements Ast.Visitor<Void> {
        // throw new UnsupportedOperationException();
         print(ast.getFunction().getReturnType().getJvmName() + " " + ast.getFunction().getName() + "(");
 
-       // generate(IntStream.range(0, ast.getParameters().size()).mapToObj(i -> ast.getFunction().getParameterTypes().get(i).getJvmName() + " " + ast.getParameters().get(i)).collect(Collectors)
+        for (int i = 0; i < ast.getParameters().size(); i++) {
+            print(ast.getParameterTypeNames().get(i) + " " + ast.getParameters().get(i));
+            if (i != ast.getParameters().size() - 1)
+                print(", ");
+
+        }
+
         print(") " + "{");
 
-        if(ast.getStatements().isEmpty())
-            print("}");
-        else {
-            newline(++indent);
-            for (int i = 0; i <ast.getStatements().size(); i++) {
+        if (!ast.getStatements().isEmpty()) {
+            for (int i = 0; i < ast.getStatements().size(); i++) {
+                newline(++indent);;
                 print(ast.getStatements().get(i));
-                if(i+1 != ast.getStatements().size())
-                    newline(indent);
             }
             newline(--indent);
-            print("}");
         }
+        print("}");
+
         return null;
     }
 
