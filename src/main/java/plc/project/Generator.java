@@ -97,13 +97,17 @@ public final class Generator implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Method ast) {
         // throw new UnsupportedOperationException();
-        print(ast.getFunction().getReturnType().getJvmName() + " " + ast.getFunction().getName() + "(");
-
+        print(ast.getFunction().getReturnType().getJvmName());
+        print(" ");
+        print(ast.getName());
+        print("(");
         for (int i = 0; i < ast.getParameters().size(); i++) {
-            print(ast.getParameterTypeNames().get(i) + " " + ast.getParameters().get(i));
-            if (i != ast.getParameters().size() - 1)
+            print(ast.getParameterTypeNames().get(i));
+            print(" ");
+            print(ast.getParameters().get(i));
+            if (i != ast.getParameters().size() - 1) {
                 print(", ");
-
+            }
         }
 
         print(") " + "{");
@@ -123,7 +127,8 @@ public final class Generator implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Stmt.Expression ast) {
         //throw new UnsupportedOperationException();
-        print(ast.getExpression()+ ";");
+        print(ast.getExpression());
+        print(";");
         return null;
     }
 
@@ -207,7 +212,9 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.Return ast) {
-        print("return " + ast.getValue() + ";");
+        print("return ");
+        print(ast.getValue());
+        print(";");
         return null;
     }
 
@@ -255,7 +262,7 @@ public final class Generator implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Expr.Access ast) {
         //throw new UnsupportedOperationException();
-        if(ast.getReceiver().isPresent()){
+        if (ast.getReceiver().isPresent()) {
             print(ast.getReceiver().get());
             print(".");
         }
