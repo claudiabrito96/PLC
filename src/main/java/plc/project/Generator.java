@@ -39,21 +39,23 @@ public final class Generator implements Ast.Visitor<Void> {
         print("public class Main {");
         newline(indent);
         newline(++indent);
-        for (Ast.Field field:ast.getFields()) {
-            visit(field);
+        if (!ast.getFields().isEmpty()) {
+            for (Ast.Field field: ast.getFields()) {
+                visit(field);
+            }
         }
         print("public static void main(String[] args) {");
         newline(++indent);
-        print("System.exit(new Main().main()); ");
+        print("System.exit(new Main().main());");
         newline(--indent);
         print("}");
-        newline(indent);
+        newline(0);
         newline(indent);
         for (Ast.Method method:ast.getMethods()) {
             visit(method);
         }
-        newline(indent);
-        newline(--indent);
+        newline(0);
+        newline(0);
         print("}");
         return null;
     }
@@ -78,10 +80,13 @@ public final class Generator implements Ast.Visitor<Void> {
                 break;
         }
 
-        print(" " + ast.getName());
+        print(" ");
+        print(ast.getName());
 
-        if (ast.getValue().isPresent())
-            print(" = " + ast.getValue().get());
+        if (ast.getValue().isPresent()) {
+            print(" = " );
+            print(ast.getValue().get());
+        }
 
         print(";");
 
@@ -138,7 +143,8 @@ public final class Generator implements Ast.Visitor<Void> {
     public Void visit(Ast.Stmt.Assignment ast) {
         print(ast.getReceiver());
         print(" = ");
-        print(ast.getValue() + ";");
+        print(ast.getValue());
+        print(";");
         return null;
     }
 
@@ -168,7 +174,11 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.For ast) {
-        print("for (" + ast.getValue().getType()+ " " + ast.getName() + " : " + ast.getValue() + "{");
+        print("for (int ");
+        print(ast.getName());
+        print(" : ");
+        print(ast.getValue());
+        print(") {");
         newline(++indent);
         for (int i = 0; i <ast.getStatements().size(); i++){
             print(ast.getStatements().get(i));
@@ -224,7 +234,8 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Group ast) {
-        print("(" + ast.getExpression());
+        print("(");
+        print(ast.getExpression());
         print(")");
         return null;
     }
