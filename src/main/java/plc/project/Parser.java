@@ -68,21 +68,26 @@ public final class Parser {
     public Ast.Method parseMethod() throws ParseException {
         List<String> indents = new ArrayList<>();
         List<Ast.Stmt> stmts = new ArrayList<>();
+        List<String> typeNames = new ArrayList<>();
            String indent1 = tokens.get(0).getLiteral();
            tokens.advance();
            if(!match("("))
                throw new ParseException("Error", tokens.index);
            while (!match(")")){
                indents.add(tokens.get(-1).getLiteral());
+               tokens.advance();
+               typeNames.add(tokens.get(0).getLiteral());
            }
-
+           tokens.advance();
+           String ReturnType = tokens.get(0).getLiteral();
+           tokens.advance();
            if(!match("DO"))
                throw new ParseException("DO expected", tokens.index);
            while (!match(";")){
                stmts.add(parseStatement());
            }
 
-           return new Ast.Method(indent1,indents,stmts);
+           return new Ast.Method(indent1,indents,typeNames,Optional.of(ReturnType),stmts);
     }
 
     /**
