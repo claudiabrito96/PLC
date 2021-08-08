@@ -53,10 +53,11 @@ public final class Parser {
             String ident1 = tokens.get(0).getLiteral();
             tokens.advance();
             tokens.advance();
+            String type = tokens.get(0).getLiteral();
             tokens.advance();
             if(match("="))
                  expr = parseExpression();
-            return new Ast.Field(ident1,Optional.of(expr));
+            return new Ast.Field(ident1,type,Optional.of(expr));
 
     }
 
@@ -122,11 +123,15 @@ public final class Parser {
         Ast.Expr expr = null;
             String ident = tokens.get(0).getLiteral();
             tokens.advance();
-            if(!match("="))
-            return new Ast.Stmt.Declaration(ident,Optional.empty());
-        expr = parseExpression();
-        return new Ast.Stmt.Declaration(ident,Optional.of(expr));
-
+            if (match(":")){
+                String type = tokens.get(0).getLiteral();
+                return new Ast.Stmt.Declaration(ident,Optional.of(type),Optional.empty());
+            }else if(!match("="))
+               return new Ast.Stmt.Declaration(ident,Optional.empty());
+            else {
+                expr = parseExpression();
+                return new Ast.Stmt.Declaration(ident,Optional.of(expr));
+            }
     }
 
     /**
