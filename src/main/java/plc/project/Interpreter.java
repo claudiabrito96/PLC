@@ -165,7 +165,8 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.Return ast) {
-       throw  new Return(Environment.create(ast.getValue()));
+
+        throw  new Return(visit(ast.getValue()));
     }
 
     @Override
@@ -261,17 +262,11 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
             Environment.PlcObject right = visit(ast.getRight());
 
             if(left.getValue() instanceof BigInteger){
-                if (right.getValue() instanceof BigInteger)
-                    return Environment.create(requireType(BigInteger.class,visit(ast.getLeft())).add(requireType(BigInteger.class,visit(ast.getRight()))));
-                else
-                    throw new RuntimeException();
-            } else{
-                if(right.getValue() instanceof BigDecimal)
-                    return Environment.create(requireType(BigDecimal.class,visit(ast.getLeft())).add(requireType(BigDecimal.class,visit(ast.getRight()))));
-                else
-                    throw new RuntimeException();
-            }
-
+                return Environment.create(((BigInteger) left.getValue()).multiply(requireType(BigInteger.class, visit(ast.getRight()))));
+            } else if(left.getValue() instanceof BigDecimal){
+                return Environment.create(((BigDecimal) left.getValue()).multiply(requireType(BigDecimal.class, visit(ast.getRight()))));
+            } else
+                throw new RuntimeException();
         }
         else if(ast.getOperator().equals("/")){
             Environment.PlcObject left = visit(ast.getLeft());

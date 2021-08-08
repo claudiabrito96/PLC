@@ -52,10 +52,10 @@ public final class Parser {
 
             String ident1 = tokens.get(0).getLiteral();
             tokens.advance();
+            tokens.advance();
+            tokens.advance();
             if(match("="))
                  expr = parseExpression();
-            if (!match(";"))
-                throw new ParseException("; expected", tokens.index);
             return new Ast.Field(ident1,Optional.of(expr));
 
     }
@@ -122,10 +122,10 @@ public final class Parser {
         Ast.Expr expr = null;
             String ident = tokens.get(0).getLiteral();
             tokens.advance();
-             if(!match("="))
-                 return new Ast.Stmt.Declaration(ident,Optional.empty());
-             expr = parseExpression();
-             return new Ast.Stmt.Declaration(ident,Optional.of(expr));
+            if(!match("="))
+            return new Ast.Stmt.Declaration(ident,Optional.empty());
+        expr = parseExpression();
+        return new Ast.Stmt.Declaration(ident,Optional.of(expr));
 
     }
 
